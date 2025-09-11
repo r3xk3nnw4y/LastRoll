@@ -1,10 +1,15 @@
 # LastRoll
 
 Group Name: LastRoll
+
 Group Member 1: Tess Harris - Project Manager - https://github.com/tesseralia
+
 Group Member 2: Jack Cook - Assistant Project Manager  - https://github.com/r3xk3nnw4y
+
 Group Member 3: Grayson Smith - Record Keeper - https://github.com/USAGSmith
+
 Group Member 4: James Harden - Lead Artist - https://github.com/fledge-art
+
 
 Project Description: Last Roll is an online marketplace for tabletop role-playing game dice. Users will be able to buy and sell dice sets and sort listings based on color, size, material, etc. easily through a simple tag filtering system with limited and definite metrics. The goal is to design and implement a creative and immersive user experience that’s still simple and safe to use. 
 

@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0" version="28.2.4">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0" version="28.2.5">
   <diagram name="Page-1" id="a8z_qXfn4UCgV_TsBqf3">
-    <mxGraphModel dx="1373" dy="865" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1373" dy="745" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -10,41 +10,54 @@
         <mxCell id="BJ7fX-P-IGOd9j1j5BFI-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-1" target="BJ7fX-P-IGOd9j1j5BFI-4" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-1" value="Bare metal" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="120" y="160" width="80" height="80" as="geometry" />
+        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-1" value="postgres" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="310" y="240" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-2" target="BJ7fX-P-IGOd9j1j5BFI-5" edge="1">
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-2" target="jA5ex7J7ZEwEaxyMGjV_-4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-2" value="apache" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="280" y="320" width="80" height="80" as="geometry" />
+        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-2" value="sha-512" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="470" y="400" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-3" target="BJ7fX-P-IGOd9j1j5BFI-2" edge="1">
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-3" target="jA5ex7J7ZEwEaxyMGjV_-6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-3" value="postgres" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="280" y="160" width="80" height="80" as="geometry" />
+        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-3" value="password hash" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="470" y="240" width="80" height="80" as="geometry" />
         </mxCell>
         <mxCell id="BJ7fX-P-IGOd9j1j5BFI-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-4" target="BJ7fX-P-IGOd9j1j5BFI-2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-4" value="backend" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="120" y="320" width="80" height="80" as="geometry" />
+        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-4" value="salt" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="310" y="400" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-5" target="BJ7fX-P-IGOd9j1j5BFI-7" edge="1">
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="jA5ex7J7ZEwEaxyMGjV_-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="350" y="360" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="310" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="jA5ex7J7ZEwEaxyMGjV_-1" target="jA5ex7J7ZEwEaxyMGjV_-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="190" y="220" />
+              <mxPoint x="680" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-1" value="username" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="150" y="320" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="jA5ex7J7ZEwEaxyMGjV_-4" target="jA5ex7J7ZEwEaxyMGjV_-6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BJ7fX-P-IGOd9j1j5BFI-5" target="BJ7fX-P-IGOd9j1j5BFI-6" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-4" value="hashed pasword" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="640" y="400" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-5" value="front end(django)" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="280" y="480" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-6" value="shipping api" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="440" y="480" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="BJ7fX-P-IGOd9j1j5BFI-7" value="email api" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="120" y="480" width="80" height="80" as="geometry" />
+        <mxCell id="jA5ex7J7ZEwEaxyMGjV_-6" value="verified" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="640" y="240" width="80" height="80" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

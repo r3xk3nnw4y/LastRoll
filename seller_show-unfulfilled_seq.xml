@@ -1,0 +1,14 @@
+<SequenceDiagram name="ViewUnfulfilledOrders">
+  <Lifelines>
+    <Lifeline name="User"/>
+    <Lifeline name="ApplicationServer"/>
+    <Lifeline name="OrdersDB"/>
+  </Lifelines>
+  <Messages>
+    <Message from="User" to="ApplicationServer" name="View Order History (via 3.2.7)"/>
+    <Message from="User" to="ApplicationServer" name="Click 'Show Only Unfulfilled Orders'"/>
+    <Message from="ApplicationServer" to="OrdersDB" name="Query unfulfilled orders"/>
+    <Message from="OrdersDB" to="ApplicationServer" name="Return unfulfilled orders"/>
+    <Message from="ApplicationServer" to="User" name="Reload 'Seller Order History' with unfulfilled orders"/>
+  </Messages>
+</SequenceDiagram>

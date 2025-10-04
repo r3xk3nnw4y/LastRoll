@@ -1,0 +1,14 @@
+<SequenceDiagram name="MarkOrderAsShipped">
+  <Lifelines>
+    <Lifeline name="User"/>
+    <Lifeline name="ApplicationServer"/>
+    <Lifeline name="OrdersDB"/>
+  </Lifelines>
+  <Messages>
+    <Message from="User" to="ApplicationServer" name="View Unfulfilled Orders (via 3.2.8)"/>
+    <Message from="User" to="ApplicationServer" name="Click 'Mark As Shipped'"/>
+    <Message from="ApplicationServer" to="OrdersDB" name="Update order (remove 'unfulfilled' tag)"/>
+    <Message from="OrdersDB" to="ApplicationServer" name="Acknowledge update"/>
+    <Message from="ApplicationServer" to="User" name="Confirm Order Shipped"/>
+  </Messages>
+</SequenceDiagram>

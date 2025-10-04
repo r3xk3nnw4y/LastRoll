@@ -1,0 +1,16 @@
+<SequenceDiagram name="ViewSalesInformation">
+  <Lifelines>
+    <Lifeline name="User"/>
+    <Lifeline name="ApplicationServer"/>
+    <Lifeline name="OrdersDB"/>
+  </Lifelines>
+  <Messages>
+    <Message from="User" to="ApplicationServer" name="View Seller Dashboard (via 3.2.1)"/>
+    <Message from="User" to="ApplicationServer" name="Click 'Sales Summary'"/>
+    <Message from="ApplicationServer" to="ApplicationServer" name="Load 'Sales Summary' page"/>
+    <Message from="ApplicationServer" to="OrdersDB" name="Query all orders owned by user"/>
+    <Message from="OrdersDB" to="ApplicationServer" name="Return order list"/>
+    <Message from="ApplicationServer" to="ApplicationServer" name="Aggregate statistics"/>
+    <Message from="ApplicationServer" to="User" name="Display sales summary"/>
+  </Messages>
+</SequenceDiagram>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0" version="28.2.5">
+  <diagram name="Page-1" id="waJVCTvpsTjnuPQrhSZ5">
+    <mxGraphModel dx="1034" dy="570" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="6H3Bjmp79qeUppPzs6rY-1" value="Seller" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="1" vertex="1">
+          <mxGeometry x="180" y="80" width="100" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="6H3Bjmp79qeUppPzs6rY-2" value="Web Front End" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="1" vertex="1">
+          <mxGeometry x="340" y="80" width="100" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="6H3Bjmp79qeUppPzs6rY-6" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="6H3Bjmp79qeUppPzs6rY-2" vertex="1">
+          <mxGeometry x="40" y="80" width="20" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="6H3Bjmp79qeUppPzs6rY-3" value="DB Back End" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="1" vertex="1">
+          <mxGeometry x="500" y="80" width="100" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="6H3Bjmp79qeUppPzs6rY-12" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="6H3Bjmp79qeUppPzs6rY-3" vertex="1">
+          <mxGeometry x="40" y="125" width="20" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="6H3Bjmp79qeUppPzs6rY-7" value="Username/Email&amp;nbsp;&lt;div&gt;And Password&lt;/div&gt;" style="html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;startSize=8;curved=0;rounded=0;entryX=0;entryY=0;entryDx=0;entryDy=5;" parent="1" source="6H3Bjmp79qeUppPzs6rY-1" target="6H3Bjmp79qeUppPzs6rY-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310" y="145" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6H3Bjmp79qeUppPzs6rY-13" value="Authentication" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;entryX=0;entryY=0;entryDx=0;entryDy=5;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="389.5" y="210" as="sourcePoint" />
+            <mxPoint x="540" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="J6mK2zzKQywVo_8LQNN3-1" value="Success" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=-5;exitPerimeter=0;" parent="1" source="6H3Bjmp79qeUppPzs6rY-12" target="6H3Bjmp79qeUppPzs6rY-2" edge="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="425" y="420" as="sourcePoint" />
+            <mxPoint x="505" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="J6mK2zzKQywVo_8LQNN3-2" value="Display Success&lt;div&gt;And Allow Access&lt;/div&gt;" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="389.5" y="280" as="sourcePoint" />
+            <mxPoint x="229.5" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

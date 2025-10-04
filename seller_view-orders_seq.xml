@@ -1,0 +1,15 @@
+<SequenceDiagram name="ViewOrderHistory">
+  <Lifelines>
+    <Lifeline name="User"/>
+    <Lifeline name="ApplicationServer"/>
+    <Lifeline name="OrdersDB"/>
+  </Lifelines>
+  <Messages>
+    <Message from="User" to="ApplicationServer" name="View Seller Dashboard (via 3.2.1)"/>
+    <Message from="User" to="ApplicationServer" name="Click 'Order History'"/>
+    <Message from="ApplicationServer" to="ApplicationServer" name="Load 'Seller Order History' page"/>
+    <Message from="ApplicationServer" to="OrdersDB" name="Query all orders owned by user"/>
+    <Message from="OrdersDB" to="ApplicationServer" name="Return order list"/>
+    <Message from="ApplicationServer" to="User" name="Display order history"/>
+  </Messages>
+</SequenceDiagram>

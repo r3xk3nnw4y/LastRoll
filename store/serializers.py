@@ -20,18 +20,25 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    
+
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'quantity', 'price']
+        fields = ['id', 'order', 'product', 'quantity', 'price']
+        extra_kwargs = {
+            'price': {'required': False}
+        }
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     buyer = BuyerSerializer(read_only=True)
+    total = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = ['id', 'buyer', 'created_at', 'is_paid', 'total', 'items']
+
+    def get_total(self, obj):
+        return sum(item.price * item.quantity for item in obj.items.all())
 
 
 

@@ -32,13 +32,18 @@ class Product(models.Model):
         return f"{self.name} by {self.seller.store_name}"
 
 class Order(models.Model):
-    buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE) # Who ordered this?
+    buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE) # Who ordered this?    
     created_at = models.DateTimeField(default=timezone.now) # Timestamp when order was created
     is_paid = models.BooleanField(default=False) # For payment integration later
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0) # Total cost
 
     def __str__(self):
         return f"Order #{self.id} by {self.buyer.user.username}"
+
+    def update_total(self):
+        # Recalculate order total whenever items change
+        self.total = sum(item.price for item in self.items.all())
+        self.save()
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items') # Links item to order; related_name lets us use order.items.all()
@@ -48,4 +53,3 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
-

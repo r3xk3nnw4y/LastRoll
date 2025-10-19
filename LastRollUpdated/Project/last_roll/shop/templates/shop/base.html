@@ -34,11 +34,23 @@
 
 
                 <!-- Navbar Right Side -->
+
+                {% if user.is_authenticated %}
+                <div style="position:absolute; top: 25%; right:5vw">
+                <a href="{% url 'shop-home' %}">
+                    <img style="position:absolute; width:70px; max-width:25vw; z-index:1; right:0px; right-padding: 3vw; top: -5vh" src="{% static 'shop/CartButton.png' %}"> </img>
+                </a>
+                <a href="{% url 'shop-about' %}">
+                    <img style="position:absolute; width:100px; max-width:30vw; right:45px; right-padding: 3vw" src="{% static 'shop/AccountButton.png' %}"> </img>
+                </a>
+                </div>
+                {% else %}
                 <div style="position:absolute; top: 25%; right:8vw">
                 <a href="{% url 'shop-login' %}">
                     <img style="width:100px; max-width:30vw" src="{% static 'shop/LoginButton.png' %}"> </img>
                 </a>
                 </div>
+                {% endif %}
             </div>
         </img>
         </img>

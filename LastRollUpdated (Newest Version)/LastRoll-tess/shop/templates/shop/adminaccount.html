@@ -1,0 +1,25 @@
+{% extends "shop/base.html" %}
+{% block title %}Admin Account{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-dark text-white">Account Information</div>
+    <div class="card-body">
+      <p><strong>Name:</strong> {{ name }}</p>
+      <p><strong>Email:</strong> {{ email }}</p>
+      <p><strong>Username:</strong> {{ username }}</p>
+      <p><strong>Member Since:</strong> {{ member_since|date:"F j, Y" }}</p>
+      <a href="#" class="btn btn-outline-secondary btn-sm mt-2">Edit Profile</a>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <form method="post" action="{% url 'shop-logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

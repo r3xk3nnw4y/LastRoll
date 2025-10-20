@@ -1,0 +1,22 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  {% for post in posts %}
+    <article class="media content-section mb-4 p-3 border rounded shadow-sm">
+      <div class="media-body">
+        <div class="article-metadata mb-2">
+          <a class="mr-2 font-weight-bold text-dark" href="#">{{ post.author }}</a>
+          <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+        </div>
+        <h2 class="article-title">
+          <a href="#" class="text-primary text-decoration-none">{{ post.title }}</a>
+        </h2>
+        <p class="article-content mt-2">{{ post.content }}</p>
+      </div>
+    </article>
+  {% empty %}
+    <p class="text-center mt-5 text-muted">No posts available.</p>
+  {% endfor %}
+{% endblock %}

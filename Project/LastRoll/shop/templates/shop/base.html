@@ -1,0 +1,75 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required Bootstrap meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'shop/main.css'%}">
+    
+    {% if title %}
+        <title> {{title}} </title>
+    {% else %}
+        <title> Last Roll </title>
+    {% endif %}
+  </head>
+  <body>
+
+    <div>
+    <header class="site-header">
+        <nav class="navbar navbar-dark fixed-top">
+            <img style="position: absolute; z-index: -1; width: 200px; height:100%; left:0px; right:0px" src="{% static 'shop/HeaderShapeL.png' %}">
+            <img style="position: absolute; z-index: -1; width: 100vw; height:100%; left:0px; right:0px" src="{% static 'shop/HeaderShapeC.png' %}">
+            <img style="position: absolute; z-index: -1; width: 200px; height:100%; right:0px; float:right" src="{% static 'shop/HeaderShapeR.png' %}">
+            <div>
+                <a href="{% url 'shop-home' %}" style="padding-left:5vw">
+                <img style="width:100px; max-width:30vw" src="{% static 'shop/SiteLogo.png' %}"> </img>
+                </a>
+
+
+
+                <!-- Navbar Right Side -->
+
+                {% if user.is_authenticated %}
+                <div style="position:absolute; top: 25%; right:5vw">
+                <a href="{% url 'shop-cart' %}">
+                    <img style="position:absolute; width:70px; max-width:25vw; z-index:1; right:0px; right-padding: 3vw; top: -5vh" src="{% static 'shop/CartButton.png' %}"> </img>
+                </a>
+                <a href="{% url 'shop-buyeraccount' %}">
+                    <img style="position:absolute; width:100px; max-width:30vw; right:45px; right-padding: 3vw" src="{% static 'shop/AccountButton.png' %}"> </img>
+                </a>
+                </div>
+                {% else %}
+                <div style="position:absolute; top: 25%; right:8vw">
+                <a href="{% url 'shop-login' %}">
+                    <img style="width:100px; max-width:30vw" src="{% static 'shop/LoginButton.png' %}"> </img>
+                </a>
+                </div>
+                {% endif %}
+            </div>
+        </img>
+        </img>
+        </img>
+        </nav>
+    </header>
+
+    <main role="main" class="container">
+        <div class="row" style="padding-top: 80px">
+            <div class="col-md-12">
+            {% block content %}
+            {% endblock %}
+            </div>
+        </div>
+    </main>
+
+
+    <!-- put footer here-->
+</div>
+  </body>
+</html>
+

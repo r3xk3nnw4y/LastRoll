@@ -36,16 +36,34 @@
                 <!-- Navbar Right Side -->
 
                 {% if user.is_authenticated %}
-                <div style="position:absolute; top: 25%; right:5vw">
-                <a href="{% url 'shop-cart' %}">
-                    <img style="position:absolute; width:70px; max-width:25vw; z-index:1; right:0px; right-padding: 3vw; top: -5vh" src="{% static 'shop/CartButton.png' %}"> </img>
-                </a>
-                <a href="{% url 'shop-buyeraccount' %}">
-                    <img style="position:absolute; width:100px; max-width:30vw; right:45px; right-padding: 3vw" src="{% static 'shop/AccountButton.png' %}"> </img>
-                </a>
-                </div>
+
+                    {% if user.profile.role == user.profile.ROLE_ADMIN %} <!--is admin-->
+                        <div style="position:absolute; top: 22%; right:8vw">
+                        <a href="{% url 'shop-adminaccount' %}">
+                            <img style="width:100px; max-width:30vw" src="{% static 'shop/AccountButton.png' %}"> </img>
+                        </a>
+                        </div>
+
+                    {% elif user.profile.role == user.profile.ROLE_SELLER %} <!--is seller-->
+                        <div style="position:absolute; top: 22%; right:8vw">
+                        <a href="{% url 'shop-selleraccount' %}">
+                            <img style="width:100px; max-width:30vw" src="{% static 'shop/AccountButton.png' %}"> </img>
+                        </a>
+                        </div>
+
+                    {% elif user.profile.role == user.profile.ROLE_BUYER %} <!--is buyer-->
+                        <div style="position:absolute; top: 25%; right:5vw">
+                        <a href="{% url 'shop-cart' %}">
+                            <img style="position:absolute; width:70px; max-width:25vw; z-index:1; right:0px; right-padding: 3vw; top: -5vh" src="{% static 'shop/CartButton.png' %}"> </img>
+                        </a>
+                        <a href="{% url 'shop-buyeraccount' %}">
+                            <img style="position:absolute; width:100px; max-width:30vw; right:55px; right-padding: 3vw" src="{% static 'shop/AccountButton.png' %}"> </img>
+                        </a>
+                        </div>
+
+                    {% endif %}
                 {% else %}
-                <div style="position:absolute; top: 25%; right:8vw">
+                <div style="position:absolute; top: 22%; right:8vw">
                 <a href="{% url 'shop-login' %}">
                     <img style="width:100px; max-width:30vw" src="{% static 'shop/LoginButton.png' %}"> </img>
                 </a>

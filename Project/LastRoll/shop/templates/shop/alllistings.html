@@ -53,24 +53,27 @@
 
 
     <div class="row mt-4">
-      {% for i in "123" %}
+
+    {% for product in listings %}
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm h-100">
 
           <div class="d-flex align-items-center justify-content-center bg-light border-bottom" style="height: 250px;">
-            <span class="text-muted">Image Goes Here</span>
+            <span class="" style="display: inline-block; width: 100%; height: 100%;
+            background-image: url('{{ product.image.url }}'); 
+            background-size: cover; background-position: cover;"></span>
           </div>
           <div class="card-body">
-            <h5 class="card-title">Example Product {{ i }}</h5>
-            <p class="card-text mb-1"><strong>Color:</strong> Example</p>
-            <p class="card-text mb-1"><strong>Type:</strong> Example</p>
-            <p class="card-text mb-3"><strong>Material:</strong> Example</p>
-            <p class="card-text">$19.99</p>
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">{{ product.description }}</p>
+            <p class="card-text">${{ product.price }}</p>
             <a href="#" class="btn btn-outline-primary btn-block">View Details</a>
           </div>
         </div>
       </div>
-      {% endfor %}
+    {% empty %}
+      <p class="text-center text-muted">There are no listings yet.</p>
+    {% endfor %}
     </div>
   </div>
 {% endblock %}

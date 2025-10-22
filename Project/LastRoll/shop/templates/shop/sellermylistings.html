@@ -5,6 +5,7 @@
 {% block content %}
 <div class="container mt-5">
   <h2 class="text-center mb-4">My Listings</h2>
+    <a href="{% url 'shop-sellercreatelisting' %}" class="btn btn-primary btn-lg btn-block my-2">Add Listing</a>
 
   {% for product in listings %}
     <div class="card mb-3 shadow-sm">
@@ -12,9 +13,18 @@
         <div>
           <h5 class="card-title">{{ product.name }}</h5>
           <p class="text-muted mb-1">Price: ${{ product.price }}</p>
-          <p class="text-muted">Stock: {{ product.stock }}</p>
+          <p class="text-muted mb-1">Stock: {{ product.stock }}</p>
+          <p class="text-muted">Status: 
+            {% if product.status == 0 %}Unverified
+            {% elif product.status == 1 %}Approved
+            {% else %}Banned
+            {% endif %}
+          </p>
         </div>
-        <a href="#" class="btn btn-outline-primary">Edit</a>
+        <form action="{% url 'remove_product' product.pk %}" method="post" style="display: inline;">
+          {% csrf_token %}
+          <button class="btn btn-danger btn-sm mx-1" type="submit">Delete</button>
+        </form>
       </div>
     </div>
   {% empty %}

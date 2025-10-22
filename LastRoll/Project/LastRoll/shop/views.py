@@ -64,7 +64,7 @@ def about(request):
     }
     return render(request, 'shop/about.html', context)
     
-def login(request):
+def log_in(request):
     context = {
         'title': 'Log In'
     }

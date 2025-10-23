@@ -1,0 +1,32 @@
+{% extends "shop/base.html" %}
+{% block title %}My Orders{% endblock %}
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Incoming Orders</h2>
+
+  <table class="table table-striped text-center shadow-sm">
+    <thead class="thead-dark">
+      <tr>
+        <th>Order ID</th>
+        <th>Buyer</th>
+        <th>Items</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.buyer }}</td>
+        <td>{{ order.items }}</td>
+        <td>{{ order.status }}</td>
+        <td><a href="#" class="btn btn-sm btn-outline-success">Print Label</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

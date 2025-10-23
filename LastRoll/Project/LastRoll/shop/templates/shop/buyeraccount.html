@@ -1,0 +1,46 @@
+{% extends "shop/base.html" %}
+{% block title %}My Account{% endblock %}
+
+
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">My Account</h1>
+
+    <!-- Account Info Section -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        Account Information
+      </div>
+      <div class="card-body">
+        <p><strong>Name:</strong> {{ name }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Username:</strong> {{ username }}</p>
+        <p><strong>Member Since:</strong> {{ member_since|date:"F j, Y" }}</p>
+        <p><strong>Payment Method:</strong> {{ payment_method }}</p>
+        <a href="#" class="btn btn-outline-primary btn-sm mt-2">Edit Profile</a>
+      </div>
+    </div>
+
+    <!-- Recent Orders Section -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-secondary text-white">
+        Recent Orders
+      </div>
+      <div class="card-body">
+        <p class="text-muted mb-0">Order data will appear here soon.</p>
+      </div>
+    </div>
+
+    <!-- Account Actions -->
+    <div class="text-center mt-4">
+      <form method="post" action="{% url 'shop-logout' %}" style="display:inline;">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
+</form>
+
+    </div>
+  </div>
+{% endblock %}

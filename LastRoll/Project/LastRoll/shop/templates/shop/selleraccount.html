@@ -1,0 +1,24 @@
+{% extends "shop/base.html" %}
+{% block title %}Seller Account{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Seller Account Information</h2>
+
+  <div class="card shadow-sm p-4" style="border-radius: 1rem;">
+    <p><strong>Username:</strong> {{ username }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Store Name:</strong> {{ store_name }}</p>
+    <p><strong>Location:</strong> {{ location }}</p>
+    <p><strong>Description:</strong> {{ description }}</p>
+    <form method="post" action="{% url 'shop-logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
+  </form>
+  </div>
+</div>
+{% endblock %}
+<form method="post" action="{% url 'shop-logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
+  </form>

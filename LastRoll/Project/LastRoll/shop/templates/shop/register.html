@@ -1,0 +1,10 @@
+{% extends "shop/base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+  <h2>Choose Account Type</h2>
+  <a href="{% url 'shop-register-buyer' %}" class="btn btn-outline-primary btn-lg m-3">Register as Buyer</a>
+  <a href="{% url 'shop-register-seller' %}" class="btn btn-outline-success btn-lg m-3">Register as Seller</a>
+</div>
+{% endblock %}

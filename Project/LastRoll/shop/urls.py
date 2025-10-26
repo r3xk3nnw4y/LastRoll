@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -40,6 +42,7 @@ urlpatterns = [
     path('sellerdashboard/', views.sellerdashboard, name='shop-sellerdashboard'),
     path('selleraccount/', views.selleraccount, name='shop-selleraccount'),
     path('sellermylistings/', views.sellermylistings, name='shop-sellermylistings'),
+    path('sellercreatelisting/', views.sellercreatelisting, name='shop-sellercreatelisting'),
     path('sellermyorders/', views.sellermyorders, name='shop-sellermyorders'),
     path('sellersales/', views.sellersales, name='shop-sellersales'),
 
@@ -48,7 +51,11 @@ urlpatterns = [
     path('adminaccount/', views.adminaccount, name='shop-adminaccount'),
     path('pendingsellers/', views.pendingsellers, name='shop-pendingsellers'),
     path('pendinglistings/', views.pendinglistings, name='shop-pendinglistings'),
-    path('reportedlistings/', views.reportedlistings, name='shop-reportedlistings'),
-    path('pendingsellers/update/<int:seller_id>/', views.update_seller_status, name='shop-update-seller-status'),
+    path('products/<int:pk>/remove/', views.remove_product, name='remove_product'),
+    path('products/<int:pk>/approve/', views.approve_product, name='approve_product'),
+    path('products/<int:pk>/reject/', views.reject_product, name='reject_product'),
 
-]
+    path('reportedlistings/', views.reportedlistings, name='shop-reportedlistings'),
+
+    path('logout/', auth_views.LogoutView.as_view(template_name='shop/logout.html'), name='shop-logout'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

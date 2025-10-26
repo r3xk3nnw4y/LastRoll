@@ -26,6 +26,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='product_images/', blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    status = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.name} by {self.seller.store_name}"

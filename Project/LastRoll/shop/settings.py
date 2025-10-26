@@ -9,6 +9,8 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-gla^t6wh_j%u3&+9n(gb-+3@3@5js%^muae(_5f9xcr36n1itc'

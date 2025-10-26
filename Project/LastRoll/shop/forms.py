@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from store.models import SellerApplication
+from store.models import Product
+
 
 class BuyerRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -33,3 +35,15 @@ class SellerRegisterForm(forms.ModelForm):
         if cleaned_data.get('password') != cleaned_data.get('confirm_password'):
             raise forms.ValidationError("Passwords do not match.")
         return cleaned_data
+    
+class ProductForm(forms.ModelForm):
+    name = forms.TextInput()
+    description = forms.TextInput()
+    price = forms.DecimalField()
+    stock = forms.IntegerField()
+    image = forms.ImageField()
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'stock', 'image']
+    
+

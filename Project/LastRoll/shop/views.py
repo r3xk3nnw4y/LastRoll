@@ -9,7 +9,9 @@ from store.models import SellerApplication
 from django.contrib.auth import login
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
-
+from store.models import Product
+from store.models import Seller
+from .forms import ProductForm
 
 posts = [ 
     {
@@ -137,7 +139,8 @@ def buyeraccount(request):
 
 def alllistings(request):
     context = {
-        'title': 'All Listings'
+        'title': 'All Listings',
+        'listings': Product.objects.filter(status=1)
     }
     return render(request, 'shop/alllistings.html', context)
 
@@ -204,19 +207,52 @@ def selleraccount(request):
     return render(request, 'shop/selleraccount.html', context)
 
 @login_required
+def sellercreatelisting(request):
+    """Seller listings page — add products."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        try:
+            seller = Seller.objects.get(user=request.user)
+        except Seller.DoesNotExist:
+            # Handle the case where the user doesn't have a Seller profile yet
+            # For now create one if it doesn't exist
+            seller = Seller.objects.create(user=request.user)
+        form.instance.seller = seller
+        if form.is_valid():
+            form.save() # This saves the new object to the database
+            return redirect('shop-sellerdashboard') # Redirect to a success page or list view
+    else:
+        form = ProductForm()
+    context = {
+        'username': request.user.username,
+        'form': form
+    }
+    return render(request, 'shop/sellercreatelisting.html', context)
+
+@login_required
 def sellermylistings(request):
     """Seller listings page — manage products."""
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
+    listings = Product.objects.filter(seller__user=profile.user)
     context = {
         'username': request.user.username,
-        'listings': [
-            {'name': 'Example Product 1', 'price': 24.99, 'stock': 10},
-            {'name': 'Example Product 2', 'price': 9.99, 'stock': 5},
-        ],
+        'listings': listings
     }
     return render(request, 'shop/sellermylistings.html', context)
+
+@login_required
+def remove_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission.")
+    product.delete()
+    return redirect('shop-sellermylistings')
 
 
 @login_required
@@ -312,12 +348,29 @@ def pendinglistings(request):
     if profile.role != profile.ROLE_ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
     context = {
-        'listings': [
-            {'name': 'Wooden Mug', 'seller': 'CoffeeCorner'},
-            {'name': 'Handmade Tote', 'seller': 'Crafty Creations'},
-        ]
+        'listings': Product.objects.filter(status=0)
     }
     return render(request, 'shop/pendinglistings.html', context)
+
+@login_required
+def approve_product(request, pk):
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    product = get_object_or_404(Product, pk=pk)
+    product.status = 1
+    product.save()
+    return redirect('shop-pendinglistings')
+
+@login_required
+def reject_product(request, pk):
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    product = get_object_or_404(Product, pk=pk)
+    product.is_approved = 2
+    product.save()
+    return redirect('shop-pendinglistings')
 
 
 @login_required

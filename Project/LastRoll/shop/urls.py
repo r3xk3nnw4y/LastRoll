@@ -27,6 +27,9 @@ urlpatterns = [
     path('', views.home, name='shop-home'),
     path('about/', views.about, name='shop-about'),
     path('register/', views.register, name='shop-register'),
+    path('register/buyer/', views.buyerregister, name='shop-register-buyer'),
+    path('register/seller/', views.sellerregister, name='shop-register-seller'),
+
 
     # 👤 Buyer Pages
     path('buyerhome/', views.buyerhome, name='shop-buyerhome'),

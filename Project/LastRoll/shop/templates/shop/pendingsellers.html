@@ -1,25 +1,24 @@
 {% extends "shop/base.html" %}
-{% block title %}Pending Sellers{% endblock %}
+{% block title %}Pending Seller Approvals{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Pending Seller Approvals</h2>
+<h2 class="text-center mb-4">Pending Seller Approvals</h2>
 
-  {% for s in sellers %}
-  <div class="card mb-3 shadow-sm">
-    <div class="card-body d-flex justify-content-between align-items-center">
-      <div>
-        <h5 class="mb-1">{{ s.store }}</h5>
-        <p class="text-muted mb-0">User: {{ s.username }}</p>
-      </div>
-      <div>
-        <button class="btn btn-success btn-sm mx-1">Approve</button>
-        <button class="btn btn-danger btn-sm mx-1">Reject</button>
-      </div>
+{% if sellers %}
+  {% for seller in sellers %}
+    <div class="card mb-3 p-3 shadow-sm">
+      <p><strong>User:</strong> {{ seller.user.username }}</p>
+      <p><strong>Store Name:</strong> {{ seller.store_name }}</p>
+      <p><strong>Description:</strong> {{ seller.description }}</p>
+      <form method="post" action="{% url 'shop-update-seller-status' seller.id %}">
+        {% csrf_token %}
+        <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+        <button name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+      </form>
     </div>
-  </div>
-  {% empty %}
-    <p class="text-center text-muted">No sellers awaiting approval.</p>
   {% endfor %}
-</div>
+{% else %}
+  <p class="text-center text-muted">No pending sellers at the moment.</p>
+{% endif %}
 {% endblock %}
+

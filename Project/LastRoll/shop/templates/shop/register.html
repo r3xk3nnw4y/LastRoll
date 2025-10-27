@@ -1,38 +1,10 @@
 {% extends "shop/base.html" %}
 {% block title %}Register{% endblock %}
-{% block body_class %}no-sidebar{% endblock %}
-
-{% block nav_right %}
-  <a class="nav-item nav-link" href="{% url 'shop-login' %}">Log In</a>
-{% endblock %}
-{% block sidebar %}{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-column align-items-center justify-content-center text-center" style="height: 75vh;">
-  <div class="card shadow p-4" style="width: 600px; border-radius: 3rem;">
-    <h3 class="text-center mb-4">Create an Account</h3>
-    <form>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" placeholder="Enter email">
-      </div>
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" class="form-control" id="username" placeholder="Choose a username">
-      </div>
-      <div class="form-group">
-        <label for="password1">Password</label>
-        <input type="password" class="form-control" id="password1" placeholder="Enter password">
-      </div>
-      <div class="form-group">
-        <label for="password2">Confirm Password</label>
-        <input type="password" class="form-control" id="password2" placeholder="Re-enter password">
-      </div>
-      <button type="submit" class="btn btn-success btn-block mt-3">Register</button>
-    </form>
-    <div class="text-center mt-3">
-      <small>Already have an account? <a href="{% url 'shop-login' %}">Log In!</a></small>
-    </div>
-  </div>
+<div class="container text-center mt-5">
+  <h2>Choose Account Type</h2>
+  <a href="{% url 'shop-register-buyer' %}" class="btn btn-outline-primary btn-lg m-3">Register as Buyer</a>
+  <a href="{% url 'shop-register-seller' %}" class="btn btn-outline-success btn-lg m-3">Register as Seller</a>
 </div>
 {% endblock %}

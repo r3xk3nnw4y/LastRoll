@@ -1,79 +1,62 @@
 {% extends "shop/base.html" %}
 {% block title %}All Listings{% endblock %}
 
-
-
 {% block sidebar %}{% endblock %}
 
 {% block content %}
-  <div class="container mt-4">
-    <h1 class="text-center mb-4">All Listings</h1>
+<div class="container mt-4">
+  <h1 class="text-center mb-4">All Listings</h1>
 
-    <form method="GET" class="mb-5">
-      <div class="card shadow-sm p-4">
-        <div class="form-row">
-          <div class="form-group col-md-3">
-            <label for="searchName">Name</label>
-            <input type="text" id="searchName" name="name" class="form-control" placeholder="Search by name">
-          </div>
-
-          <div class="form-group col-md-3">
-            <label for="searchColor">Color</label>
-            <input type="text" id="searchColor" name="color" class="form-control" placeholder="Search by color">
-          </div>
-
-          <div class="form-group col-md-3">
-            <label for="searchType">Type</label>
-            <select id="searchType" name="type" class="form-control">
-              <option value="">All Types</option>
-              <option>D6</option>
-              <option>D20</option>
-              <option>Full Set</option>
-            </select>
-          </div>
-
-          <div class="form-group col-md-3">
-            <label for="searchMaterial">Material</label>
-            <select id="searchMaterial" name="material" class="form-control">
-              <option value="">All Materials</option>
-              <option>Wood</option>
-              <option>Plastic</option>
-              <option>Glass</option>
-              <option>Metal</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="text-center mt-3">
-          <button type="submit" class="btn btn-primary px-5">Search</button>
-          <button type="reset" class="btn btn-outline-secondary ml-2">Reset</button>
+  <!-- Search Form -->
+  <form method="GET" class="mb-5">
+    <div class="card shadow-sm p-4">
+      <div class="form-row">
+        <!-- Name Search -->
+        <div class="form-group col-md-4 mx-auto">
+          <label for="searchName">Search by Name</label>
+          <input type="text" id="searchName" name="name" class="form-control"
+                 placeholder="Enter product name" value="{{ query }}">
         </div>
       </div>
-    </form>
 
+      <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary px-5">Search</button>
+        <button type="reset" class="btn btn-outline-secondary ml-2" onclick="window.location.href='{{ request.path }}'">Reset</button>
+      </div>
+    </div>
+  </form>
 
-    <div class="row mt-4">
-
-    {% for product in listings %}
+  <!-- Listings -->
+  <div class="row mt-4">
+    {% if listings %}
+      {% for product in listings %}
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm h-100">
-
           <div class="d-flex align-items-center justify-content-center bg-light border-bottom" style="height: 250px;">
-            <span class="" style="display: inline-block; width: 100%; height: 100%;
-            background-image: url('{{ product.image.url }}'); 
-            background-size: cover; background-position: cover;"></span>
+            {% if product.image %}
+              <span style="display: inline-block; width: 100%; height: 100%;
+                           background-image: url('{{ product.image.url }}');
+                           background-size: cover; background-position: center;"></span>
+            {% else %}
+              <div class="text-muted">No Image Available</div>
+            {% endif %}
           </div>
           <div class="card-body">
             <h5 class="card-title">{{ product.name }}</h5>
-            <p class="card-text">{{ product.description }}</p>
-            <p class="card-text">${{ product.price }}</p>
+            <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+            <p class="card-text"><strong>${{ product.price }}</strong></p>
             <a href="#" class="btn btn-outline-primary btn-block">View Details</a>
           </div>
         </div>
       </div>
-    {% empty %}
-      <p class="text-center text-muted">There are no listings yet.</p>
-    {% endfor %}
-    </div>
+      {% endfor %}
+    {% else %}
+      {% if query %}
+        <p class="text-center text-danger mt-5">No results found for “{{ query }}”.</p>
+      {% else %}
+        <p class="text-center text-muted mt-5">There are no listings yet.</p>
+      {% endif %}
+    {% endif %}
   </div>
+</div>
 {% endblock %}

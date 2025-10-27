@@ -12,6 +12,10 @@ from django.shortcuts import get_object_or_404
 from store.models import Product
 from store.models import Seller
 from .forms import ProductForm
+from shop.models import Profile
+from django.contrib import messages
+from django.db.models import Prefetch
+
 
 posts = [ 
     {
@@ -137,10 +141,18 @@ def buyeraccount(request):
 
     return render(request, 'shop/buyeraccount.html', context)
 
+@login_required
 def alllistings(request):
+    query = request.GET.get('name', '').strip()
+    listings = Product.objects.filter(status=1)
+
+    if query:
+        listings = listings.filter(name__icontains=query)
+
     context = {
         'title': 'All Listings',
-        'listings': Product.objects.filter(status=1)
+        'listings': listings,
+        'query': query
     }
     return render(request, 'shop/alllistings.html', context)
 
@@ -324,33 +336,40 @@ def pendingsellers(request):
 @require_POST
 @login_required
 def update_seller_status(request, seller_id):
-    """Approve or deny seller applications directly from the admin panel."""
     profile = request.user.profile
     if profile.role != profile.ROLE_ADMIN:
         return HttpResponseForbidden("You do not have permission to perform this action.")
 
     app = get_object_or_404(SellerApplication, id=seller_id)
-
     action = request.POST.get('action')
+
     if action == 'approve':
         app.status = SellerApplication.STATUS_APPROVED
+        messages.success(request, f"Seller '{app.store_name}' has been approved.")
     elif action == 'deny':
         app.status = SellerApplication.STATUS_DENIED
-    app.save()
+        messages.warning(request, f"Seller '{app.store_name}' has been denied.")
+    else:
+        messages.error(request, "Invalid action.")
 
+    app.save()
     return redirect('shop-pendingsellers')
 
 
 @login_required
 def pendinglistings(request):
-    """Placeholder page for listings awaiting approval."""
     profile = request.user.profile
     if profile.role != profile.ROLE_ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
-    context = {
-        'listings': Product.objects.filter(status=0)
-    }
-    return render(request, 'shop/pendinglistings.html', context)
+
+    listings = (
+        Product.objects
+        .filter(status=0)
+        .select_related('seller', 'seller__user', 'seller__user__sellerapplication')
+    )
+
+    return render(request, 'shop/pendinglistings.html', {'listings': listings})
+
 
 @login_required
 def approve_product(request, pk):
@@ -368,7 +387,7 @@ def reject_product(request, pk):
     if profile.role != profile.ROLE_ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
     product = get_object_or_404(Product, pk=pk)
-    product.is_approved = 2
+    product.status = 2
     product.save()
     return redirect('shop-pendinglistings')
 
@@ -411,9 +430,12 @@ def sellerregister(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             user.save()
+
+            # Assign seller role
             user.profile.role = user.profile.ROLE_SELLER
             user.profile.save()
 
+            # Create the pending seller application
             SellerApplication.objects.create(
                 user=user,
                 store_name=form.cleaned_data['store_name'],
@@ -421,7 +443,12 @@ def sellerregister(request):
                 description=form.cleaned_data['description']
             )
 
-            return render(request, 'shop/sellerpending.html', {'user': user})
+            # Log in the new seller
+            login(request, user)
+
+            # ✅ Redirect to seller dashboard instead of showing the pending page
+            return redirect('shop-sellerdashboard')
+
     else:
         form = SellerRegisterForm()
 

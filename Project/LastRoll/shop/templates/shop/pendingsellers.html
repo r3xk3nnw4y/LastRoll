@@ -1,24 +1,70 @@
 {% extends "shop/base.html" %}
-{% block title %}Pending Seller Approvals{% endblock %}
+{% block title %}Pending Listings{% endblock %}
 
 {% block content %}
-<h2 class="text-center mb-4">Pending Seller Approvals</h2>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Pending Listings</h2>
 
-{% if sellers %}
-  {% for seller in sellers %}
-    <div class="card mb-3 p-3 shadow-sm">
-      <p><strong>User:</strong> {{ seller.user.username }}</p>
-      <p><strong>Store Name:</strong> {{ seller.store_name }}</p>
-      <p><strong>Description:</strong> {{ seller.description }}</p>
-      <form method="post" action="{% url 'shop-update-seller-status' seller.id %}">
-        {% csrf_token %}
-        <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
-        <button name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
-      </form>
+  {% for product in listings %}
+  <div class="card mb-4 shadow-sm">
+    <div class="row no-gutters align-items-center">
+
+      <!-- Product Image -->
+      <div class="col-md-4 d-flex justify-content-center align-items-center p-3">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 200px;">
+        {% else %}
+          <div class="d-flex justify-content-center align-items-center bg-light border rounded" style="height: 200px; width: 100%;">
+            <span class="text-muted">No Image Available</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Product Info -->
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{ product.name }}</h5>
+          <p class="card-text">{{ product.description|default:"No description provided." }}</p>
+
+          <ul class="list-unstyled mb-3">
+            <li><strong>Price:</strong> ${{ product.price }}</li>
+            <li><strong>Stock:</strong> {{ product.stock }}</li>
+
+            {% with app=product.seller.user.sellerapplication %}
+              {% if app %}
+                <li><strong>Seller:</strong> {{ app.store_name|default:"(No store name)" }}</li>
+                <li><strong>Seller Location:</strong> {{ app.location|default:"(No location listed)" }}</li>
+                <li><strong>Seller Email:</strong> {{ product.seller.user.email|default:"(No email)" }}</li>
+                <li><strong>Status:</strong> {{ app.get_status_display }}</li>
+              {% else %}
+                <p class="text-muted fst-italic">No seller application found for this seller.</p>
+              {% endif %}
+            {% endwith %}
+          </ul>
+
+          {% if product.status == 0 %}
+          <div>
+            <form action="{% url 'approve_product' product.pk %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-success btn-sm mx-1" type="submit">Approve</button>
+            </form>
+
+            <form action="{% url 'reject_product' product.pk %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-danger btn-sm mx-1" type="submit">Reject</button>
+            </form>
+          </div>
+          {% else %}
+          <p class="text-muted">
+            <strong>Status:</strong> {{ product.get_status_display }}
+          </p>
+          {% endif %}
+        </div>
+      </div>
     </div>
+  </div>
+  {% empty %}
+    <p class="text-center text-muted">No listings awaiting approval.</p>
   {% endfor %}
-{% else %}
-  <p class="text-center text-muted">No pending sellers at the moment.</p>
-{% endif %}
+</div>
 {% endblock %}
-

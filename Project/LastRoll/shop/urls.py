@@ -20,10 +20,10 @@ urlpatterns = [
         template_name='shop/logout.html'
     ), name='shop-logout'),
 
-    # 🧭 Role-based redirect after login
+    # Role-based redirect after login
     path('redirect/', views.role_redirect, name='shop-role-redirect'),
 
-    # 🏠 Main Pages
+    # Main Pages
     path('', views.home, name='shop-home'),
     path('about/', views.about, name='shop-about'),
     path('register/', views.register, name='shop-register'),
@@ -31,14 +31,14 @@ urlpatterns = [
     path('register/seller/', views.sellerregister, name='shop-register-seller'),
 
 
-    # 👤 Buyer Pages
+    # Buyer Pages
     path('buyerhome/', views.buyerhome, name='shop-buyerhome'),
     path('cart/', views.cart, name='shop-cart'),
     path('buyeraccount/', views.buyeraccount, name='shop-buyeraccount'),
     path('alllistings/', views.alllistings, name='shop-alllistings'),
     path('featuredlistings/', views.featuredlistings, name='shop-featuredlistings'),
 
-    # 💼 Seller Pages
+    # Seller Pages
     path('sellerdashboard/', views.sellerdashboard, name='shop-sellerdashboard'),
     path('selleraccount/', views.selleraccount, name='shop-selleraccount'),
     path('sellermylistings/', views.sellermylistings, name='shop-sellermylistings'),
@@ -46,7 +46,7 @@ urlpatterns = [
     path('sellermyorders/', views.sellermyorders, name='shop-sellermyorders'),
     path('sellersales/', views.sellersales, name='shop-sellersales'),
 
-    # 🧑‍💻 Admin Pages
+    # Admin Pages
     path('admindashboard/', views.admindashboard, name='shop-admindashboard'),
     path('adminaccount/', views.adminaccount, name='shop-adminaccount'),
     path('pendingsellers/', views.pendingsellers, name='shop-pendingsellers'),

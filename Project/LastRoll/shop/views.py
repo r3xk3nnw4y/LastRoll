@@ -100,7 +100,7 @@ def listing(request, product_id):
     context = {
         'product': product,
         'quantity_in_cart': quantity_in_cart,
-        'listing': Product.objects.filter(id = product_id)
+        'listing': Product.objects.filter(id = product_id).first()
     }
     
     return render(request, 'shop/listing.html', context)
@@ -128,7 +128,7 @@ def cart(request):
             'subtotal': product.price * quantity,
         })
 
-    total = sum(item['price'] * item['quantity'] for item in cart_items)
+    total = 0
 
     context = {
         'username': request.user.username,
@@ -142,12 +142,12 @@ def add_to_cart(request, product_id):
     cart = get_cart_from_cookies(request)
     cart[str(product_id)] = cart.get(str(product_id), 0) + 1
 
-    response = redirect('view_cart')
+    response = redirect('cart')
     save_cart_to_response(response, cart)
     return response
 
 def clear_cart(request):
-    response = redirect('view_cart')
+    response = redirect('cart')
     response.delete_cookie('cart')
     return response
 

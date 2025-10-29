@@ -6,6 +6,7 @@ from django.utils import timezone
 from store.models import Product
 from store.models import Seller
 from .forms import ProductForm
+import json
 
 posts = [ 
     {
@@ -88,6 +89,21 @@ def buyerhome(request):
         'username': request.user.username,
     }
     return render(request, 'shop/buyerhome.html', context)
+
+def listing(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart = get_cart_from_cookies(request)
+
+    # Check if product already in cart
+    quantity_in_cart = cart.get(str(product_id), 0)
+
+    context = {
+        'product': product,
+        'quantity_in_cart': quantity_in_cart,
+        'listing': Product.objects.filter(id = product_id)
+    }
+    
+    return render(request, 'shop/listing.html', context)
     
 @login_required
 def cart(request):
@@ -97,11 +113,20 @@ def cart(request):
     if profile.role != profile.ROLE_BUYER:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
-    # Placeholder items
-    cart_items = [
-        {'name': 'Example Item 1', 'price': 19.99, 'quantity': 2},
-        {'name': 'Example Item 2', 'price': 9.99, 'quantity': 1},
-    ]
+    cart = get_cart_from_cookies(request)
+    products = Product.objects.filter(id__in=cart.keys())
+
+    cart_items = []
+    total = 0
+
+    for product in products:
+        quantity = cart[str(product.id)]
+        total += product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': product.price * quantity,
+        })
 
     total = sum(item['price'] * item['quantity'] for item in cart_items)
 
@@ -112,6 +137,41 @@ def cart(request):
     }
 
     return render(request, 'shop/cart.html', context)
+
+def add_to_cart(request, product_id):
+    cart = get_cart_from_cookies(request)
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+
+    response = redirect('view_cart')
+    save_cart_to_response(response, cart)
+    return response
+
+def clear_cart(request):
+    response = redirect('view_cart')
+    response.delete_cookie('cart')
+    return response
+
+def get_cart_from_cookies(request):
+    """Retrieve cart dictionary from cookies."""
+    cart = {}
+    cart_data = request.COOKIES.get('cart')
+    if cart_data:
+        try:
+            cart = json.loads(cart_data)
+        except json.JSONDecodeError:
+            cart = {}
+    return cart
+
+def save_cart_to_response(response, cart):
+    """Save cart dictionary as JSON in cookies."""
+    response.set_cookie(
+        'cart',
+        json.dumps(cart),
+        max_age=7 * 24 * 60 * 60,  # 1 week
+        httponly=True,
+        samesite='Lax'
+    )
+    return response
 
 @login_required
 def buyeraccount(request):

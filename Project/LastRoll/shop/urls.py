@@ -28,6 +28,10 @@ urlpatterns = [
     path('about/', views.about, name='shop-about'),
     path('register/', views.register, name='shop-register'),
 
+    path('listing/<int:product_id>/', views.listing, name='listing'),
+    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.cart, name='cart'),
+
     # 👤 Buyer Pages
     path('buyerhome/', views.buyerhome, name='shop-buyerhome'),
     path('cart/', views.cart, name='shop-cart'),

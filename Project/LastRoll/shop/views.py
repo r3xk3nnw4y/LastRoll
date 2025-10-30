@@ -128,7 +128,7 @@ def cart(request):
             'subtotal': product.price * quantity,
         })
 
-    total = 0
+    #total = 0
 
     context = {
         'username': request.user.username,
@@ -393,3 +393,8 @@ def reportedlistings(request):
         ]
     }
     return render(request, 'shop/reportedlistings.html', context)
+    #1
+    #2
+    #3
+    #4
+    #5

@@ -151,6 +151,14 @@ def clear_cart(request):
     response.delete_cookie('cart')
     return response
 
+#right now this just deletes the cookies, like clear cart, remember to change it to actually move things to the database
+def check_out(request):
+    cart = {}
+    response = redirect('cart')
+    cart = get_cart_from_cookies(request)
+    #response.delete_cookie('cart')
+    return response
+
 def get_cart_from_cookies(request):
     """Retrieve cart dictionary from cookies."""
     cart = {}

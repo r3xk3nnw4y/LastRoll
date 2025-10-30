@@ -32,7 +32,13 @@
 
       <div class="text-end mt-3">
         <h5><strong>Total:</strong> ${{ total|floatformat:2 }}</h5>
-        <button class="btn btn-primary mt-2" disabled>Checkout (Coming Soon)</button>
+        <!-- <button class="btn btn-primary mt-2" disabled>Checkout (Coming Soon)</button> -->
+        <form action="{% url 'check_out' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">
+          Check Out
+        </button>
+      </form>
         <form action="{% url 'clear_cart' %}" method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">

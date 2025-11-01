@@ -199,7 +199,8 @@ def check_out(request):
         subtotal = product.price * quantity
         print(subtotal)
         print(total)
-        instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
+        if quantity != 0:
+            instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
         instproduct.save()
     instorder.total = total
     print("instorder total: ",instorder.total)

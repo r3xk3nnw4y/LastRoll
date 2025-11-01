@@ -6,6 +6,8 @@ from django.utils import timezone
 from store.models import Product
 from store.models import Seller
 from .forms import ProductForm
+from store.models import Order
+from store.models import OrderItem
 import json
 
 posts = [ 
@@ -149,6 +151,65 @@ def add_to_cart(request, product_id):
 def clear_cart(request):
     response = redirect('cart')
     response.delete_cookie('cart')
+    return response
+
+#right now this just deletes the cookies, like clear cart, remember to change it to actually move things to the database
+def check_out(request):
+    cart = {}
+    response = redirect('cart')
+    #cart = get_cart_from_cookies(request)
+    #response.delete_cookie('cart')
+    #profile = request.user.profile
+
+    cart = get_cart_from_cookies(request)
+    products = Product.objects.filter(id__in=cart.keys())
+
+    cart_items = []
+    total = 0
+    #instorder = Order(timezone.now,request.user.buyer,0,10.59)
+    #order = Order.objects.create
+    #instorder = get_object_or_404(Order)
+    instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
+    instorder.buyer = request.user.buyer
+    instorder.save
+    print("okay it works so far b")
+    #print(Order.check)
+    print(instorder.created_at)
+    #print(timezone.now)
+
+    #Order.save
+    #print(request)
+    for product in products:
+        quantity = cart[str(product.id)]
+        total += product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            #'subtotal': product.price * quantity,
+        })
+        instproduct = get_object_or_404(Product, pk=product.pk)
+        print("instproduct",instproduct)
+        print("instproduct stock ",instproduct.stock)
+        print("instproduct price ",instproduct.price)
+        print(product)
+        print(quantity)
+        if instproduct.stock<quantity:
+            quantity= instproduct.stock      
+        instproduct.stock = instproduct.stock-quantity
+        subtotal = product.price * quantity
+        print(subtotal)
+        print(total)
+        if quantity != 0:
+            instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
+        instproduct.save()
+    instorder.total = total
+    print("instorder total: ",instorder.total)
+    print("total: ",total)
+    #instorder = Order.objects.
+    instorder.save()
+    instorderitem.save()
+            
+
     return response
 
 def get_cart_from_cookies(request):

@@ -1,0 +1,78 @@
+{% extends "shop/base.html" %}
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">User Management</h2>
+
+  <!-- Search & Filter -->
+  <form method="GET" class="card p-3 mb-4 shadow-sm">
+    <div class="form-row">
+      <div class="col-md-6">
+        <input type="text" name="q" class="form-control" placeholder="Search by username or email" value="{{ query }}">
+      </div>
+      <div class="col-md-3">
+        <select name="role" class="form-control">
+          <option value="">All Roles</option>
+          <option value="2" {% if role_filter == "2" %}selected{% endif %}>Buyers</option>
+          <option value="3" {% if role_filter == "3" %}selected{% endif %}>Sellers</option>
+        </select>
+      </div>
+      <div class="col-md-3 text-right">
+        <button type="submit" class="btn btn-primary px-4">Search</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- User Table -->
+  <div class="card shadow-sm p-3">
+    <table class="table table-hover table-striped mb-0">
+      <thead class="thead-dark">
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th style="width: 280px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.profile.get_role_display }}</td>
+          <td>
+            {% if u.profile.suspended %}
+              <span class="text-danger font-weight-bold">Suspended</span>
+            {% else %}
+              <span class="text-success font-weight-bold">Active</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.profile.suspended %}
+              <form method="post" action="{% url 'shop-toggle-suspension' u.id %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="suspend" value="false">
+                <button type="submit" class="btn btn-success btn-sm">Unsuspend</button>
+              </form>
+            {% else %}
+              <form method="post" action="{% url 'shop-toggle-suspension' u.id %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="suspend" value="true">
+                <input type="text" name="reason" class="form-control d-inline-block" placeholder="Reason..." style="width: 140px; display: inline-block;">
+                <button type="submit" class="btn btn-danger btn-sm">Suspend</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-muted">No users found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

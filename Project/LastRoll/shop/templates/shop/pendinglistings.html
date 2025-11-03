@@ -29,16 +29,8 @@
           <ul class="list-unstyled mb-3">
             <li><strong>Price:</strong> ${{ product.price }}</li>
             <li><strong>Stock:</strong> {{ product.stock }}</li>
-
-            {% with app=product.seller.user.sellerapplication_set.first %}
-              {% if app %}
-                <li><strong>Seller:</strong> {{ product.seller.user.sellerapplication.store_name|default:"(No store name)" }}</li>
-<li><strong>Seller Location:</strong> {{ product.seller.user.sellerapplication.location|default:"(No location listed)" }}</li>
-<li><strong>Seller Email:</strong> {{ product.seller.user.email|default:"(No email)" }}</li>
-              {% else %}
-                <li><em>No seller application found for this seller.</em></li>
-              {% endif %}
-            {% endwith %}
+            <li><strong>Store Name:</strong> {{ product.seller.store_name|default:"(No store name)" }}</li>
+            <li><strong>Seller Username:</strong> {{ product.seller.user.username|default:"(Unknown)" }}</li>
           </ul>
 
           {% if product.status == 0 %}
@@ -54,12 +46,13 @@
             </form>
           </div>
           {% else %}
-          <p class="text-muted">
+          <p class="text-muted mt-2">
             <strong>Status:</strong> {{ product.get_status_display }}
           </p>
           {% endif %}
         </div>
       </div>
+
     </div>
   </div>
   {% empty %}

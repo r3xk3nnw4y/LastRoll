@@ -5,20 +5,32 @@
 <div class="container mt-5">
   <h2 class="text-center mb-4">Seller Account Information</h2>
 
-  <div class="card shadow-sm p-4" style="border-radius: 1rem;">
-    <p><strong>Username:</strong> {{ username }}</p>
-    <p><strong>Email:</strong> {{ email }}</p>
-    <p><strong>Store Name:</strong> {{ store_name }}</p>
-    <p><strong>Location:</strong> {{ location }}</p>
-    <p><strong>Description:</strong> {{ description }}</p>
-    <form method="post" action="{% url 'shop-logout' %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
-  </form>
+  <div class="card shadow-sm p-4 mx-auto" style="max-width: 700px; border-radius: 1rem;">
+    <div class="card-body">
+
+      <div class="mb-3">
+        <p><strong>Username:</strong> {{ username }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+      </div>
+
+      <hr>
+
+      <div class="mb-3">
+        <p><strong>Store Name:</strong> {{ store_name }}</p>
+        <p><strong>Location:</strong> {{ location }}</p>
+        <p><strong>Description:</strong> {{ description }}</p>
+      </div>
+
+      <hr>
+
+      <div class="text-center">
+        <form method="post" action="{% url 'shop-logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-lg mt-3 px-5">Log Out</button>
+        </form>
+      </div>
+
+    </div>
   </div>
 </div>
 {% endblock %}
-<form method="post" action="{% url 'shop-logout' %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
-  </form>

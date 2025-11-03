@@ -1,0 +1,23 @@
+{% extends "shop/base.html" %}
+{% block title %}Account Suspended{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+  <div class="card shadow-sm p-5 mx-auto" style="max-width: 600px;">
+    <h2 class="text-danger mb-3">Your Account Has Been Suspended</h2>
+    <p class="lead">You cannot access most pages until an administrator reinstates your account.</p>
+
+    {% if reason %}
+      <div class="alert alert-warning mt-4">
+        <strong>Reason:</strong><br>{{ reason }}
+      </div>
+    {% else %}
+      <p class="text-muted mt-4">(No specific reason provided)</p>
+    {% endif %}
+
+    <p class="mt-4">If you believe this is a mistake, please contact an administrator.</p>
+
+    <a href="{% url 'shop-logout' %}" class="btn btn-outline-secondary mt-3">Log Out</a>
+  </div>
+</div>
+{% endblock %}

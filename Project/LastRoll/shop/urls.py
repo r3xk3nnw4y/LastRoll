@@ -6,30 +6,31 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
+    # Django Admin + API
     path('admin/', admin.site.urls),
-    path('api/', include('store.urls')),  # include store app API URLs
+    path('api/', include('store.urls')),
 
-    # 🔐 Authentication routes (using Django’s built-in views)
+    # Authentication
     path('login/', auth_views.LoginView.as_view(
         template_name='shop/login.html',
         redirect_authenticated_user=True,
-        next_page='shop-role-redirect'  # sends users to role_redirect after login
+        next_page='shop-role-redirect'
     ), name='shop-login'),
 
     path('logout/', auth_views.LogoutView.as_view(
         template_name='shop/logout.html'
     ), name='shop-logout'),
 
-    # Role-based redirect after login
+    # Role Redirect
     path('redirect/', views.role_redirect, name='shop-role-redirect'),
+    path('suspension/', views.suspension_notice, name='shop-suspension-notice'),
 
-    # Main Pages
+    # Public Pages
     path('', views.home, name='shop-home'),
     path('about/', views.about, name='shop-about'),
     path('register/', views.register, name='shop-register'),
     path('register/buyer/', views.buyerregister, name='shop-register-buyer'),
     path('register/seller/', views.sellerregister, name='shop-register-seller'),
-
 
     # Buyer Pages
     path('buyerhome/', views.buyerhome, name='shop-buyerhome'),
@@ -52,11 +53,16 @@ urlpatterns = [
     path('pendingsellers/', views.pendingsellers, name='shop-pendingsellers'),
     path('pendingsellers/update/<int:seller_id>/', views.update_seller_status, name='shop-update-seller-status'),
     path('pendinglistings/', views.pendinglistings, name='shop-pendinglistings'),
+    path('manageusers/', views.manage_users, name='shop-manage-users'),
+    path('manageusers/toggle/<int:user_id>/', views.toggle_suspension, name='shop-toggle-suspension'),
+
+    # Product Management
     path('products/<int:pk>/approve/', views.approve_product, name='approve_product'),
     path('products/<int:pk>/reject/', views.reject_product, name='reject_product'),
     path('products/<int:pk>/remove/', views.remove_product, name='remove_product'),
 
+    # Reporting System
+    path('products/<int:pk>/report/', views.report_product, name='report_product'),
     path('reportedlistings/', views.reportedlistings, name='shop-reportedlistings'),
-
-    path('logout/', auth_views.LogoutView.as_view(template_name='shop/logout.html'), name='shop-logout'),
+    path('reportedlistings/<int:pk>/<str:action>/', views.resolve_report, name='resolve_report'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

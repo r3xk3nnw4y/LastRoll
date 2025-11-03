@@ -286,6 +286,7 @@ def featuredlistings(request):
     context = {
         'title': 'Featured Listings'
     }
+    #return redirect('shop-alllisting')
     return render(request, 'shop/featuredlistings.html', context)
 
 @login_required

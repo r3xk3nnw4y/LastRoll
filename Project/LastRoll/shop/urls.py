@@ -65,4 +65,7 @@ urlpatterns = [
     path('products/<int:pk>/report/', views.report_product, name='report_product'),
     path('reportedlistings/', views.reportedlistings, name='shop-reportedlistings'),
     path('reportedlistings/<int:pk>/<str:action>/', views.resolve_report, name='resolve_report'),
+
+    path('logout/', auth_views.LogoutView.as_view(template_name='shop/logout.html'), name='shop-logout'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+path('logout/', auth_views.LogoutView.as_view(template_name='shop/logout.html'), name='shop-logout'),

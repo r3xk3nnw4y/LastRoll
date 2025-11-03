@@ -519,3 +519,136 @@ def reportedlistings(request):
         ]
     }
     return render(request, 'shop/reportedlistings.html', context)
+=======
+
+    query = request.GET.get('q', '').strip()
+    role_filter = request.GET.get('role', '')
+
+    # Fetch all users except admins
+    users = User.objects.filter(profile__role__in=[profile.ROLE_BUYER, profile.ROLE_SELLER])
+
+    if query:
+        users = users.filter(Q(username__icontains=query) | Q(email__icontains=query))
+    if role_filter:
+        users = users.filter(profile__role=role_filter)
+
+    return render(request, 'shop/manage_users.html', {
+        'users': users,
+        'query': query,
+        'role_filter': role_filter,
+    })
+
+@login_required
+def toggle_suspension(request, user_id):
+    """Suspend or unsuspend a user."""
+    admin_profile = request.user.profile
+    if admin_profile.role != admin_profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to perform this action.")
+
+    user = get_object_or_404(User, id=user_id)
+    target_profile = user.profile
+
+    if request.method == 'POST':
+        # Toggle suspension
+        suspend = request.POST.get('suspend') == 'true'
+        reason = request.POST.get('reason', '').strip()
+
+        target_profile.suspended = suspend
+        target_profile.suspension_reason = reason if suspend else ''
+        target_profile.save()
+
+    return redirect('shop-manage-users')
+
+# -------------------- REPORT SYSTEM --------------------
+
+@login_required
+def report_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.user.profile.role != request.user.profile.ROLE_BUYER:
+        return HttpResponseForbidden("Only buyers can report listings.")
+    product.is_reported = True
+    product.save()
+    messages.info(request, f"'{product.name}' has been reported for review.")
+    return redirect('shop-alllistings')
+
+@login_required
+def reportedlistings(request):
+    """Admin page — shows only active, unresolved reports."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    # Preload seller relationships for performance
+    reports = (
+        Product.objects
+        .filter(is_reported=True, report_confirmed=False)
+        .select_related('seller', 'seller__user')
+    )
+
+    context = {'reports': reports}
+    return render(request, 'shop/reportedlistings.html', context)
+
+
+@login_required
+def resolve_report(request, pk, action):
+    if request.user.profile.role != request.user.profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission.")
+    product = get_object_or_404(Product, pk=pk)
+    if action == "confirm":
+        product.report_confirmed = True
+        product.status = 2
+    elif action == "dismiss":
+        product.is_reported = False
+        product.report_confirmed = False
+    product.save()
+    return redirect('shop-reportedlistings')
+
+# -------------------- REGISTRATION --------------------
+
+def buyerregister(request):
+    if request.method == 'POST':
+        form = BuyerRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            user.profile.role = user.profile.ROLE_BUYER
+            user.profile.save()
+            login(request, user)
+            return redirect('shop-buyerhome')
+    else:
+        form = BuyerRegisterForm()
+
+    return render(request, 'shop/buyerregister.html', {'form': form})
+
+
+def sellerregister(request):
+    if request.method == 'POST':
+        form = SellerRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+
+            # Assign seller role
+            user.profile.role = user.profile.ROLE_SELLER
+            user.profile.save()
+
+            # Create the pending seller application
+            SellerApplication.objects.create(
+                user=user,
+                store_name=form.cleaned_data['store_name'],
+                location=form.cleaned_data['location'],
+                description=form.cleaned_data['description']
+            )
+
+            # Log in the new seller
+            login(request, user)
+
+            # ✅ Redirect to seller dashboard instead of showing the pending page
+            return redirect('shop-sellerdashboard')
+
+    else:
+        form = SellerRegisterForm()
+
+    return render(request, 'shop/sellerregister.html', {'form': form})

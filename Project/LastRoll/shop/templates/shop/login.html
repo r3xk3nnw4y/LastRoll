@@ -10,8 +10,6 @@
 <div class="d-flex justify-content-center align-items-center" style="height: 50vh;">
   <div class="card shadow p-4" style="width: 600px; border-radius: 3rem;">
     <h3 class="text-center mb-4">Log In</h3>
-
-    <!-- ✅ This connects the form to Django's LoginView -->
     <form method="POST" action="{% url 'shop-login' %}">
       {% csrf_token %}
       {{ form.non_field_errors }}

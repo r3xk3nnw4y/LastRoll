@@ -18,6 +18,9 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, default=ROLE_BUYER)
 
+    suspended = models.BooleanField(default=False)
+    suspension_reason = models.TextField(blank=True, null=True)
+
     def __str__(self):
         return f"{self.user.username} ({self.get_role_display()})"
 

@@ -10,7 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('store.urls')),
 
-    # Authentication
+    # 🔐 Authentication routes (using Django’s built-in views)
     path('login/', auth_views.LoginView.as_view(
         template_name='shop/login.html',
         redirect_authenticated_user=True,
@@ -21,18 +21,19 @@ urlpatterns = [
         template_name='shop/logout.html'
     ), name='shop-logout'),
 
-    # Role Redirect
+    # 🧭 Role-based redirect after login
     path('redirect/', views.role_redirect, name='shop-role-redirect'),
     path('suspension/', views.suspension_notice, name='shop-suspension-notice'),
 
-    # Public Pages
+    # 🏠 Main Pages
     path('', views.home, name='shop-home'),
     path('about/', views.about, name='shop-about'),
     path('register/', views.register, name='shop-register'),
     path('register/buyer/', views.buyerregister, name='shop-register-buyer'),
     path('register/seller/', views.sellerregister, name='shop-register-seller'),
 
-    # Buyer Pages
+
+    # 👤 Buyer Pages
     path('buyerhome/', views.buyerhome, name='shop-buyerhome'),
     path('cart/', views.cart, name='shop-cart'),
     path('buyeraccount/', views.buyeraccount, name='shop-buyeraccount'),

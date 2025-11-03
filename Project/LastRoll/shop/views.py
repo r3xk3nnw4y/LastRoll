@@ -1,15 +1,30 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden
-from django.contrib import messages
-from store.models import SellerApplication, Seller, Product
-from .forms import SellerRegisterForm, BuyerRegisterForm, ProductForm
-from django.db.models import Q
-from django.contrib.auth.models import User
+from django.utils import timezone
+from .forms import BuyerRegisterForm, SellerRegisterForm
+from store.models import SellerApplication
+from django.contrib.auth import login
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
+from store.models import Product
+from store.models import Seller
+from .forms import ProductForm
 
-# -------------------- ROLE REDIRECT --------------------
+posts = [ 
+    {
+    'author': 'John Doe',
+    'title': 'Test Post 1',
+    'content': 'Filler'
+    },
+    {
+    'author': 'Jane Doe',
+    'title': 'Test Post 2',
+    'content': 'Filler 2'
+    }
+]
 
 @login_required
 def role_redirect(request):
@@ -23,125 +38,348 @@ def role_redirect(request):
     else:
         return redirect('shop-buyerhome')
 
-# -------------------- BASIC PAGES --------------------
-
 def home(request):
+    # If user is already logged in → redirect to their role dashboard
     if request.user.is_authenticated:
-        return role_redirect(request)
+        profile = request.user.profile
+
+        if profile.role == profile.ROLE_ADMIN:
+            return redirect('shop-admindashboard')
+        elif profile.role == profile.ROLE_SELLER:
+            return redirect('shop-sellerdashboard')
+        else:
+            return redirect('shop-buyerhome')
+
+    # Otherwise → show the normal public homepage
     posts = [
         {'author': 'John Doe', 'title': 'First Post', 'content': 'Welcome to Last Roll!', 'date_posted': '2025-10-18'},
         {'author': 'Jane Smith', 'title': 'Second Post', 'content': 'Shop smart with us!', 'date_posted': '2025-10-17'},
     ]
+
     return render(request, 'shop/home.html', {'posts': posts})
 
+    
 def about(request):
-    return render(request, 'shop/about.html', {'title': 'About'})
-
-@login_required
-def suspension_notice(request):
-    """Displays suspension details to the suspended user."""
-    profile = request.user.profile
-    if not profile.suspended:
-        # If the user is no longer suspended, just send them home
-        return redirect('shop-home')
-    return render(request, 'shop/suspension_notice.html', {'reason': profile.suspension_reason})
-
-# -------------------- BUYER PAGES --------------------
+    context = {
+        'posts': posts,
+        'title': 'About'
+    }
+    return render(request, 'shop/about.html', context)
+    
+def log_in(request):
+    context = {
+        'title': 'Log In'
+    }
+    return render(request, 'shop/login.html', context)
+    
+def register(request):
+    context = {
+        'title': 'Register'
+    }
+    return render(request, 'shop/register.html', context)
 
 @login_required
 def buyerhome(request):
-    if request.user.profile.role != request.user.profile.ROLE_BUYER:
-        return HttpResponseForbidden("You do not have permission to view this page.")
-    return render(request, 'shop/buyerhome.html', {'username': request.user.username})
+    """Buyer dashboard — only for users with Buyer role."""
+    profile = request.user.profile
 
+    # Restrict access by role
+    if profile.role != profile.ROLE_BUYER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    # Pass user info to the template
+    context = {
+        'username': request.user.username,
+    }
+    return render(request, 'shop/buyerhome.html', context)
+
+def listing(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart = get_cart_from_cookies(request)
+
+    # Check if product already in cart
+    quantity_in_cart = cart.get(str(product_id), 0)
+
+    context = {
+        'product': product,
+        'quantity_in_cart': quantity_in_cart,
+        'listing': Product.objects.filter(id = product_id).first()
+    }
+    
+    return render(request, 'shop/listing.html', context)
+    
 @login_required
 def cart(request):
-    if request.user.profile.role != request.user.profile.ROLE_BUYER:
-        return HttpResponseForbidden("You do not have permission.")
-    cart_items = [
-        {'name': 'Example Item 1', 'price': 19.99, 'quantity': 2},
-        {'name': 'Example Item 2', 'price': 9.99, 'quantity': 1},
-    ]
-    total = sum(item['price'] * item['quantity'] for item in cart_items)
-    return render(request, 'shop/cart.html', {'cart_items': cart_items, 'total': total})
+    """Shopping Cart — only for Buyer accounts."""
+    profile = request.user.profile
+
+    if profile.role != profile.ROLE_BUYER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    cart = get_cart_from_cookies(request)
+    products = Product.objects.filter(id__in=cart.keys())
+
+    cart_items = []
+    total = 0
+
+    for product in products:
+        quantity = cart[str(product.id)]
+        total += product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': product.price * quantity,
+        })
+
+    #total = 0
+
+    context = {
+        'username': request.user.username,
+        'cart_items': cart_items,
+        'total': total,
+    }
+
+    return render(request, 'shop/cart.html', context)
+
+def add_to_cart(request, product_id):
+    cart = get_cart_from_cookies(request)
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+
+    response = redirect('cart')
+    save_cart_to_response(response, cart)
+    return response
+
+def clear_cart(request):
+    response = redirect('cart')
+    response.delete_cookie('cart')
+    return response
+
+#right now this just deletes the cookies, like clear cart, remember to change it to actually move things to the database
+def check_out(request):
+    cart = {}
+    response = redirect('cart')
+    #cart = get_cart_from_cookies(request)
+    #response.delete_cookie('cart')
+    #profile = request.user.profile
+
+    cart = get_cart_from_cookies(request)
+    products = Product.objects.filter(id__in=cart.keys())
+
+    cart_items = []
+    total = 0
+    #instorder = Order(timezone.now,request.user.buyer,0,10.59)
+    #order = Order.objects.create
+    #instorder = get_object_or_404(Order)
+    instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
+    instorder.buyer = request.user.buyer
+    instorder.save
+    print("okay it works so far b")
+    #print(Order.check)
+    print(instorder.created_at)
+    #print(timezone.now)
+
+    #Order.save
+    #print(request)
+    for product in products:
+        quantity = cart[str(product.id)]
+        total += product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            #'subtotal': product.price * quantity,
+        })
+        instproduct = get_object_or_404(Product, pk=product.pk)
+        print("instproduct",instproduct)
+        print("instproduct stock ",instproduct.stock)
+        print("instproduct price ",instproduct.price)
+        print(product)
+        print(quantity)
+        if instproduct.stock<quantity:
+            quantity= instproduct.stock      
+        instproduct.stock = instproduct.stock-quantity
+        subtotal = product.price * quantity
+        print(subtotal)
+        print(total)
+        if quantity != 0:
+            instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
+        instproduct.save()
+    instorder.total = total
+    print("instorder total: ",instorder.total)
+    print("total: ",total)
+    #instorder = Order.objects.
+    instorder.save()
+    instorderitem.save()
+            
+
+    return response
+
+def get_cart_from_cookies(request):
+    """Retrieve cart dictionary from cookies."""
+    cart = {}
+    cart_data = request.COOKIES.get('cart')
+    if cart_data:
+        try:
+            cart = json.loads(cart_data)
+        except json.JSONDecodeError:
+            cart = {}
+    return cart
+
+def save_cart_to_response(response, cart):
+    """Save cart dictionary as JSON in cookies."""
+    response.set_cookie(
+        'cart',
+        json.dumps(cart),
+        max_age=7 * 24 * 60 * 60,  # 1 week
+        httponly=True,
+        samesite='Lax'
+    )
+    return response
 
 @login_required
 def buyeraccount(request):
-    if request.user.profile.role != request.user.profile.ROLE_BUYER:
-        return HttpResponseForbidden("You do not have permission.")
+    """Buyer account page — only for users with Buyer role."""
+    profile = request.user.profile
+
+    # Restrict access by role
+    if profile.role != profile.ROLE_BUYER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    # Account info for display
     context = {
         'name': request.user.get_full_name() or request.user.username,
         'email': request.user.email,
         'username': request.user.username,
         'member_since': request.user.date_joined,
+        'payment_method': "N/A",  # Placeholder until you add real payment data
     }
+
     return render(request, 'shop/buyeraccount.html', context)
 
 @login_required
 def alllistings(request):
     query = request.GET.get('name', '').strip()
-    listings = Product.objects.filter(status=1)  # show all approved listings, even if reported
+    listings = Product.objects.filter(status=1)
+
     if query:
         listings = listings.filter(name__icontains=query)
-    return render(request, 'shop/alllistings.html', {'listings': listings, 'query': query})
+
+    context = {
+        'title': 'All Listings',
+        'listings': listings,
+        'query': query
+    }
+    return render(request, 'shop/alllistings.html', context)
 
 def featuredlistings(request):
-    return render(request, 'shop/featuredlistings.html', {'title': 'Featured Listings'})
-
-# -------------------- SELLER PAGES --------------------
+    context = {
+        'title': 'Featured Listings'
+    }
+    return render(request, 'shop/featuredlistings.html', context)
 
 @login_required
 def sellerdashboard(request):
+    """Seller dashboard — only accessible to approved sellers."""
     profile = request.user.profile
+
+    # Must be a seller
     if profile.role != profile.ROLE_SELLER:
-        return HttpResponseForbidden("You do not have permission.")
+        return HttpResponseForbidden("You do not have permission to view this page.")
 
-    app = SellerApplication.objects.filter(user=request.user).first()
-    if not app:
-        return render(request, 'shop/sellerpending.html', {'message': "No seller application found."})
+    # Check for a seller application
+    try:
+        app = SellerApplication.objects.get(user=request.user)
+    except SellerApplication.DoesNotExist:
+        return render(request, 'shop/sellerpending.html', {
+            'message': "No seller application found. Please contact support."
+        })
+
+    # If not yet approved, show waiting screen
     if app.status == SellerApplication.STATUS_PENDING:
-        return render(request, 'shop/sellerpending.html', {'message': "Awaiting admin approval."})
-    if app.status == SellerApplication.STATUS_DENIED:
-        return render(request, 'shop/sellerpending.html', {'message': "Application denied."})
+        return render(request, 'shop/sellerpending.html', {
+            'message': "Your seller account is awaiting admin approval."
+        })
+    elif app.status == SellerApplication.STATUS_DENIED:
+        return render(request, 'shop/sellerpending.html', {
+            'message': "Your seller application was denied. Please contact an administrator."
+        })
 
-    return render(request, 'shop/sellerdashboard.html', {'username': request.user.username})
+    # If approved, show seller dashboard as usual
+    context = {'username': request.user.username}
+    return render(request, 'shop/sellerdashboard.html', context)
 
 @login_required
 def selleraccount(request):
-    if request.user.profile.role != request.user.profile.ROLE_SELLER:
-        return HttpResponseForbidden("You do not have permission.")
-    seller = Seller.objects.filter(user=request.user).first()
+    """Seller account page — only accessible by approved sellers."""
+    profile = request.user.profile
+
+    # Restrict to sellers only
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    try:
+        application = SellerApplication.objects.get(user=request.user)
+    except SellerApplication.DoesNotExist:
+        application = None
+
     context = {
         'username': request.user.username,
         'email': request.user.email,
-        'store_name': seller.store_name if seller else 'N/A',
-        'location': seller.location if seller else 'N/A',
-        'description': seller.description if seller else 'N/A',
+        'store_name': getattr(application, 'store_name', 'N/A'),
+        'location': getattr(application, 'location', 'N/A'),
+        'description': getattr(application, 'description', 'N/A'),
+        'status': getattr(application, 'status', 'N/A'),
     }
+
     return render(request, 'shop/selleraccount.html', context)
 
 @login_required
 def sellercreatelisting(request):
-    if request.user.profile.role != request.user.profile.ROLE_SELLER:
-        return HttpResponseForbidden("You do not have permission.")
+    """Seller listings page — add products."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
+        try:
+            seller = Seller.objects.get(user=request.user)
+        except Seller.DoesNotExist:
+            # Handle the case where the user doesn't have a Seller profile yet
+            # For now create one if it doesn't exist
+            seller = Seller.objects.create(user=request.user)
+        form.instance.seller = seller
         if form.is_valid():
-            seller, _ = Seller.objects.get_or_create(user=request.user)
-            product = form.save(commit=False)
-            product.seller = seller
-            product.save()
-            return redirect('shop-sellerdashboard')
+            form.save() # This saves the new object to the database
+            return redirect('shop-sellerdashboard') # Redirect to a success page or list view
     else:
         form = ProductForm()
-    return render(request, 'shop/sellercreatelisting.html', {'form': form})
+    context = {
+        'username': request.user.username,
+        'form': form
+    }
+    return render(request, 'shop/sellercreatelisting.html', context)
 
 @login_required
 def sellermylistings(request):
-    if request.user.profile.role != request.user.profile.ROLE_SELLER:
+    """Seller listings page — manage products."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    listings = Product.objects.filter(seller__user=profile.user)
+    context = {
+        'username': request.user.username,
+        'listings': listings
+    }
+    return render(request, 'shop/sellermylistings.html', context)
+
+@login_required
+def remove_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission.")
-    listings = Product.objects.filter(seller__user=request.user)
-    return render(request, 'shop/sellermylistings.html', {'listings': listings})
+    product.delete()
+    return redirect('shop-sellermylistings')
+
 
 @login_required
 def sellermyorders(request):
@@ -149,8 +387,6 @@ def sellermyorders(request):
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
-
-    # Placeholder order data
     context = {
         'orders': [
             {'id': 1001, 'buyer': 'JohnDoe', 'items': 3, 'status': 'Processing'},
@@ -161,47 +397,32 @@ def sellermyorders(request):
 
 @login_required
 def sellersales(request):
-    """View total sales data for the seller."""
+    """Sales summary page — basic placeholder."""
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
-
-    # Placeholder data — you can replace this with actual DB logic later
     context = {
         'sales_summary': {
-            'total_sales': 15,
-            'total_revenue': 1240.50,
-            'top_product': 'Metal D20 Set',
-        },
-        'recent_sales': [
-            {'id': 1, 'product': 'Wood D6 Set', 'amount': 40.00, 'date': '2025-10-25'},
-            {'id': 2, 'product': 'Glass Dice Set', 'amount': 75.00, 'date': '2025-10-24'},
-        ],
+            'total_orders': 42,
+            'total_revenue': 1250.75,
+            'pending_shipments': 5,
+        }
     }
     return render(request, 'shop/sellersales.html', context)
 
-
-@login_required
-def remove_product(request, pk):
-    if request.user.profile.role != request.user.profile.ROLE_SELLER:
-        return HttpResponseForbidden("You do not have permission.")
-    get_object_or_404(Product, pk=pk, seller__user=request.user).delete()
-    return redirect('shop-sellermylistings')
-
-# -------------------- ADMIN PAGES --------------------
-
 @login_required
 def admindashboard(request):
-    if request.user.profile.role != request.user.profile.ROLE_ADMIN:
-        return HttpResponseForbidden("You do not have permission.")
-    return render(request, 'shop/admindashboard.html')
+    """Admin Dashboard — only for Admin users."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    context = {'username': request.user.username}
+    return render(request, 'shop/admindashboard.html', context)
 
 @login_required
 def adminaccount(request):
     """Admin Account Page — includes logout."""
     profile = request.user.profile
-
-    # Restrict to admins only
     if profile.role != profile.ROLE_ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
@@ -214,17 +435,61 @@ def adminaccount(request):
 
     return render(request, 'shop/adminaccount.html', context)
 
+
+@login_required
+def pendingsellers(request):
+    """Admin page to review pending sellers."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    pending_apps = SellerApplication.objects.filter(status=SellerApplication.STATUS_PENDING)
+    context = {'sellers': pending_apps}
+    return render(request, 'shop/pendingsellers.html', context)
+
+@require_POST
+@login_required
+def update_seller_status(request, seller_id):
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to perform this action.")
+
+    app = get_object_or_404(SellerApplication, id=seller_id)
+    action = request.POST.get('action')
+
+    if action == 'approve':
+        app.status = SellerApplication.STATUS_APPROVED
+        messages.success(request, f"Seller '{app.store_name}' has been approved.")
+    elif action == 'deny':
+        app.status = SellerApplication.STATUS_DENIED
+        messages.warning(request, f"Seller '{app.store_name}' has been denied.")
+    else:
+        messages.error(request, "Invalid action.")
+
+    app.save()
+    return redirect('shop-pendingsellers')
+
+
 @login_required
 def pendinglistings(request):
-    if request.user.profile.role != request.user.profile.ROLE_ADMIN:
-        return HttpResponseForbidden("You do not have permission.")
-    listings = Product.objects.filter(status=0)
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    listings = (
+        Product.objects
+        .filter(status=0)
+        .select_related('seller', 'seller__user', 'seller__user__sellerapplication')
+    )
+
     return render(request, 'shop/pendinglistings.html', {'listings': listings})
+
 
 @login_required
 def approve_product(request, pk):
-    if request.user.profile.role != request.user.profile.ROLE_ADMIN:
-        return HttpResponseForbidden("You do not have permission.")
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
     product = get_object_or_404(Product, pk=pk)
     product.status = 1
     product.save()
@@ -232,47 +497,29 @@ def approve_product(request, pk):
 
 @login_required
 def reject_product(request, pk):
-    if request.user.profile.role != request.user.profile.ROLE_ADMIN:
-        return HttpResponseForbidden("You do not have permission.")
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
     product = get_object_or_404(Product, pk=pk)
     product.status = 2
     product.save()
     return redirect('shop-pendinglistings')
 
-@login_required
-def pendingsellers(request):
-    if request.user.profile.role != request.user.profile.ROLE_ADMIN:
-        return HttpResponseForbidden("You do not have permission.")
-    pending_apps = SellerApplication.objects.filter(status=SellerApplication.STATUS_PENDING)
-    return render(request, 'shop/pendingsellers.html', {'sellers': pending_apps})
-
-@require_POST
-@login_required
-def update_seller_status(request, seller_id):
-    if request.user.profile.role != request.user.profile.ROLE_ADMIN:
-        return HttpResponseForbidden("You do not have permission.")
-    app = get_object_or_404(SellerApplication, id=seller_id)
-    action = request.POST.get('action')
-
-    if action == 'approve':
-        app.status = SellerApplication.STATUS_APPROVED
-        app.save()
-        seller, _ = Seller.objects.get_or_create(user=app.user)
-        seller.store_name = app.store_name
-        seller.location = app.location
-        seller.description = app.description
-        seller.save()
-    elif action == 'deny':
-        app.status = SellerApplication.STATUS_DENIED
-        app.save()
-    return redirect('shop-pendingsellers')
 
 @login_required
-def manage_users(request):
-    """Admin panel — view/search/filter users."""
+def reportedlistings(request):
+    """Placeholder page for reported listings."""
     profile = request.user.profile
     if profile.role != profile.ROLE_ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
+    context = {
+        'reports': [
+            {'listing': 'Old Chair', 'reason': 'Inappropriate description', 'reported_by': 'User123'},
+            {'listing': 'Broken Vase', 'reason': 'Scam suspicion', 'reported_by': 'Buyer42'},
+        ]
+    }
+    return render(request, 'shop/reportedlistings.html', context)
+=======
 
     query = request.GET.get('q', '').strip()
     role_filter = request.GET.get('role', '')
@@ -371,7 +618,9 @@ def buyerregister(request):
             return redirect('shop-buyerhome')
     else:
         form = BuyerRegisterForm()
+
     return render(request, 'shop/buyerregister.html', {'form': form})
+
 
 def sellerregister(request):
     if request.method == 'POST':
@@ -380,19 +629,26 @@ def sellerregister(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             user.save()
+
+            # Assign seller role
             user.profile.role = user.profile.ROLE_SELLER
             user.profile.save()
+
+            # Create the pending seller application
             SellerApplication.objects.create(
                 user=user,
                 store_name=form.cleaned_data['store_name'],
                 location=form.cleaned_data['location'],
                 description=form.cleaned_data['description']
             )
+
+            # Log in the new seller
             login(request, user)
+
+            # ✅ Redirect to seller dashboard instead of showing the pending page
             return redirect('shop-sellerdashboard')
+
     else:
         form = SellerRegisterForm()
-    return render(request, 'shop/sellerregister.html', {'form': form})
 
-def register(request):
-    return render(request, 'shop/register.html')
+    return render(request, 'shop/sellerregister.html', {'form': form})

@@ -68,4 +68,3 @@ urlpatterns = [
 
     path('logout/', auth_views.LogoutView.as_view(template_name='shop/logout.html'), name='shop-logout'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-path('logout/', auth_views.LogoutView.as_view(template_name='shop/logout.html'), name='shop-logout'),

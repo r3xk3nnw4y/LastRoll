@@ -645,7 +645,7 @@ def sellerregister(request):
             # Log in the new seller
             login(request, user)
 
-            # ✅ Redirect to seller dashboard instead of showing the pending page
+            # Redirect to seller dashboard instead of showing the pending page
             return redirect('shop-sellerdashboard')
 
     else:

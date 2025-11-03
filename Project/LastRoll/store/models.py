@@ -78,6 +78,7 @@ class SellerApplication(models.Model):
     description = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
     submitted_at = models.DateTimeField(auto_now_add=True)
+    #submitted_atagain = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.store_name} ({self.get_status_display()})"

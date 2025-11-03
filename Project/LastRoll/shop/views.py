@@ -12,10 +12,6 @@ from django.shortcuts import get_object_or_404
 from store.models import Product
 from store.models import Seller
 from .forms import ProductForm
-from shop.models import Profile
-from django.contrib import messages
-from django.db.models import Prefetch
-
 
 posts = [ 
     {
@@ -96,6 +92,21 @@ def buyerhome(request):
         'username': request.user.username,
     }
     return render(request, 'shop/buyerhome.html', context)
+
+def listing(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart = get_cart_from_cookies(request)
+
+    # Check if product already in cart
+    quantity_in_cart = cart.get(str(product_id), 0)
+
+    context = {
+        'product': product,
+        'quantity_in_cart': quantity_in_cart,
+        'listing': Product.objects.filter(id = product_id).first()
+    }
+    
+    return render(request, 'shop/listing.html', context)
     
 @login_required
 def cart(request):
@@ -105,13 +116,22 @@ def cart(request):
     if profile.role != profile.ROLE_BUYER:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
-    # Placeholder items
-    cart_items = [
-        {'name': 'Example Item 1', 'price': 19.99, 'quantity': 2},
-        {'name': 'Example Item 2', 'price': 9.99, 'quantity': 1},
-    ]
+    cart = get_cart_from_cookies(request)
+    products = Product.objects.filter(id__in=cart.keys())
 
-    total = sum(item['price'] * item['quantity'] for item in cart_items)
+    cart_items = []
+    total = 0
+
+    for product in products:
+        quantity = cart[str(product.id)]
+        total += product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': product.price * quantity,
+        })
+
+    #total = 0
 
     context = {
         'username': request.user.username,
@@ -120,6 +140,100 @@ def cart(request):
     }
 
     return render(request, 'shop/cart.html', context)
+
+def add_to_cart(request, product_id):
+    cart = get_cart_from_cookies(request)
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+
+    response = redirect('cart')
+    save_cart_to_response(response, cart)
+    return response
+
+def clear_cart(request):
+    response = redirect('cart')
+    response.delete_cookie('cart')
+    return response
+
+#right now this just deletes the cookies, like clear cart, remember to change it to actually move things to the database
+def check_out(request):
+    cart = {}
+    response = redirect('cart')
+    #cart = get_cart_from_cookies(request)
+    #response.delete_cookie('cart')
+    #profile = request.user.profile
+
+    cart = get_cart_from_cookies(request)
+    products = Product.objects.filter(id__in=cart.keys())
+
+    cart_items = []
+    total = 0
+    #instorder = Order(timezone.now,request.user.buyer,0,10.59)
+    #order = Order.objects.create
+    #instorder = get_object_or_404(Order)
+    instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
+    instorder.buyer = request.user.buyer
+    instorder.save
+    print("okay it works so far b")
+    #print(Order.check)
+    print(instorder.created_at)
+    #print(timezone.now)
+
+    #Order.save
+    #print(request)
+    for product in products:
+        quantity = cart[str(product.id)]
+        total += product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            #'subtotal': product.price * quantity,
+        })
+        instproduct = get_object_or_404(Product, pk=product.pk)
+        print("instproduct",instproduct)
+        print("instproduct stock ",instproduct.stock)
+        print("instproduct price ",instproduct.price)
+        print(product)
+        print(quantity)
+        if instproduct.stock<quantity:
+            quantity= instproduct.stock      
+        instproduct.stock = instproduct.stock-quantity
+        subtotal = product.price * quantity
+        print(subtotal)
+        print(total)
+        if quantity != 0:
+            instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
+        instproduct.save()
+    instorder.total = total
+    print("instorder total: ",instorder.total)
+    print("total: ",total)
+    #instorder = Order.objects.
+    instorder.save()
+    instorderitem.save()
+            
+
+    return response
+
+def get_cart_from_cookies(request):
+    """Retrieve cart dictionary from cookies."""
+    cart = {}
+    cart_data = request.COOKIES.get('cart')
+    if cart_data:
+        try:
+            cart = json.loads(cart_data)
+        except json.JSONDecodeError:
+            cart = {}
+    return cart
+
+def save_cart_to_response(response, cart):
+    """Save cart dictionary as JSON in cookies."""
+    response.set_cookie(
+        'cart',
+        json.dumps(cart),
+        max_age=7 * 24 * 60 * 60,  # 1 week
+        httponly=True,
+        samesite='Lax'
+    )
+    return response
 
 @login_required
 def buyeraccount(request):
@@ -405,51 +519,3 @@ def reportedlistings(request):
         ]
     }
     return render(request, 'shop/reportedlistings.html', context)
-
-def buyerregister(request):
-    if request.method == 'POST':
-        form = BuyerRegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-            user.profile.role = user.profile.ROLE_BUYER
-            user.profile.save()
-            login(request, user)
-            return redirect('shop-buyerhome')
-    else:
-        form = BuyerRegisterForm()
-
-    return render(request, 'shop/buyerregister.html', {'form': form})
-
-
-def sellerregister(request):
-    if request.method == 'POST':
-        form = SellerRegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-
-            # Assign seller role
-            user.profile.role = user.profile.ROLE_SELLER
-            user.profile.save()
-
-            # Create the pending seller application
-            SellerApplication.objects.create(
-                user=user,
-                store_name=form.cleaned_data['store_name'],
-                location=form.cleaned_data['location'],
-                description=form.cleaned_data['description']
-            )
-
-            # Log in the new seller
-            login(request, user)
-
-            # ✅ Redirect to seller dashboard instead of showing the pending page
-            return redirect('shop-sellerdashboard')
-
-    else:
-        form = SellerRegisterForm()
-
-    return render(request, 'shop/sellerregister.html', {'form': form})

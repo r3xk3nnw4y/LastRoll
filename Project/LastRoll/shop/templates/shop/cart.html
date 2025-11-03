@@ -21,10 +21,10 @@
         <tbody>
           {% for item in cart_items %}
             <tr>
-              <td>{{ item.name }}</td>
-              <td>${{ item.price }}</td>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.product.price }}</td>
               <td>{{ item.quantity }}</td>
-              <td>${{ item.price|floatformat:2|add:item.quantity }}</td>
+              <td>{{ item.subtotal }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -32,7 +32,19 @@
 
       <div class="text-end mt-3">
         <h5><strong>Total:</strong> ${{ total|floatformat:2 }}</h5>
-        <button class="btn btn-primary mt-2" disabled>Checkout (Coming Soon)</button>
+        <!-- <button class="btn btn-primary mt-2" disabled>Checkout (Coming Soon)</button> -->
+        <form action="{% url 'check_out' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">
+          Check Out
+        </button>
+      </form>
+        <form action="{% url 'clear_cart' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">
+          Clear Cart
+        </button>
+      </form>
       </div>
     {% else %}
       <p class="text-center text-muted">Your cart is empty.</p>

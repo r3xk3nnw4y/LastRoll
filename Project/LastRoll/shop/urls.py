@@ -10,7 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('store.urls')),
 
-    # Authentication
+    # Authentication routes (using Django’s built-in views)
     path('login/', auth_views.LoginView.as_view(
         template_name='shop/login.html',
         redirect_authenticated_user=True,
@@ -21,16 +21,24 @@ urlpatterns = [
         template_name='shop/logout.html'
     ), name='shop-logout'),
 
-    # Role Redirect
+    # Role-based redirect after login
     path('redirect/', views.role_redirect, name='shop-role-redirect'),
     path('suspension/', views.suspension_notice, name='shop-suspension-notice'),
 
-    # Public Pages
+    # Main Pages
     path('', views.home, name='shop-home'),
     path('about/', views.about, name='shop-about'),
     path('register/', views.register, name='shop-register'),
     path('register/buyer/', views.buyerregister, name='shop-register-buyer'),
     path('register/seller/', views.sellerregister, name='shop-register-seller'),
+
+    
+    path('listing/<int:product_id>/', views.listing, name='listing'),
+    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('clear-cart/', views.clear_cart, name='clear_cart'),
+    path('check-out/', views.check_out, name='check_out'),
+    path('cart/', views.cart, name='cart'),
+
 
     # Buyer Pages
     path('buyerhome/', views.buyerhome, name='shop-buyerhome'),
@@ -65,4 +73,6 @@ urlpatterns = [
     path('products/<int:pk>/report/', views.report_product, name='report_product'),
     path('reportedlistings/', views.reportedlistings, name='shop-reportedlistings'),
     path('reportedlistings/<int:pk>/<str:action>/', views.resolve_report, name='resolve_report'),
+
+    path('logout/', auth_views.LogoutView.as_view(template_name='shop/logout.html'), name='shop-logout'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

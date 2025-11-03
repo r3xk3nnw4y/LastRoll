@@ -519,7 +519,7 @@ def reportedlistings(request):
         ]
     }
     return render(request, 'shop/reportedlistings.html', context)
-=======
+
 
     query = request.GET.get('q', '').strip()
     role_filter = request.GET.get('role', '')

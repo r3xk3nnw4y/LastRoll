@@ -27,6 +27,9 @@ urlpatterns = [
     path('', views.home, name='shop-home'),
     path('about/', views.about, name='shop-about'),
     path('register/', views.register, name='shop-register'),
+    path('register/buyer/', views.buyerregister, name='shop-register-buyer'),
+    path('register/seller/', views.sellerregister, name='shop-register-seller'),
+
 
     path('listing/<int:product_id>/', views.listing, name='listing'),
     path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
@@ -53,10 +56,11 @@ urlpatterns = [
     path('admindashboard/', views.admindashboard, name='shop-admindashboard'),
     path('adminaccount/', views.adminaccount, name='shop-adminaccount'),
     path('pendingsellers/', views.pendingsellers, name='shop-pendingsellers'),
+    path('pendingsellers/update/<int:seller_id>/', views.update_seller_status, name='shop-update-seller-status'),
     path('pendinglistings/', views.pendinglistings, name='shop-pendinglistings'),
-    path('products/<int:pk>/remove/', views.remove_product, name='remove_product'),
     path('products/<int:pk>/approve/', views.approve_product, name='approve_product'),
     path('products/<int:pk>/reject/', views.reject_product, name='reject_product'),
+    path('products/<int:pk>/remove/', views.remove_product, name='remove_product'),
 
     path('reportedlistings/', views.reportedlistings, name='shop-reportedlistings'),
 

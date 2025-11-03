@@ -12,7 +12,9 @@ from django.shortcuts import get_object_or_404
 from store.models import Product
 from store.models import Seller
 from .forms import ProductForm
-
+from store.models import Order
+from store.models import OrderItem
+import json
 posts = [ 
     {
     'author': 'John Doe',
@@ -77,6 +79,16 @@ def register(request):
         'title': 'Register'
     }
     return render(request, 'shop/register.html', context)
+
+
+@login_required
+def suspension_notice(request):
+    """Displays suspension details to the suspended user."""
+    profile = request.user.profile
+    if not profile.suspended:
+        # If the user is no longer suspended, just send them home
+        return redirect('shop-home')
+    return render(request, 'shop/suspension_notice.html', {'reason': profile.suspension_reason})
 
 @login_required
 def buyerhome(request):
@@ -520,6 +532,31 @@ def reportedlistings(request):
     }
     return render(request, 'shop/reportedlistings.html', context)
 
+
+    query = request.GET.get('q', '').strip()
+    role_filter = request.GET.get('role', '')
+
+    # Fetch all users except admins
+    users = User.objects.filter(profile__role__in=[profile.ROLE_BUYER, profile.ROLE_SELLER])
+
+    if query:
+        users = users.filter(Q(username__icontains=query) | Q(email__icontains=query))
+    if role_filter:
+        users = users.filter(profile__role=role_filter)
+
+    return render(request, 'shop/manage_users.html', {
+        'users': users,
+        'query': query,
+        'role_filter': role_filter,
+    })
+
+
+@login_required
+def manage_users(request):
+    """Admin panel — view/search/filter users."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_ADMIN:
+        return HttpResponseForbidden("You do not have permission to view this page.")
 
     query = request.GET.get('q', '').strip()
     role_filter = request.GET.get('role', '')

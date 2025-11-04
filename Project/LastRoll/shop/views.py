@@ -175,6 +175,7 @@ def clear_cart(request):
 def process_order(request):
     cart = get_cart_from_cookies(request)
     products = Product.objects.filter(id__in=cart.keys())
+    redirbool = False
 
     if not products:
         return redirect('view_cart')
@@ -199,6 +200,22 @@ def process_order(request):
         messages.error(request, "Invalid payment code. Please choose another.")
         return redirect('checkout')
 
+
+    for product in products:
+        qty = cart[str(product.id)]
+        if product.stock < qty:
+            qty = product.stock
+            redirbool = True
+        #if qty == 0:
+            #cart[str(product.id)] = cart.popitem(str(product.id), 0)
+
+        #subtotal = product.price * qty
+    if redirbool:
+        response = redirect('checkout')
+        save_cart_to_response(response, cart)
+        messages.error(request, "Insufficient stock. Your cart has downsized to available stock, please confirm your purchase.")
+        return response
+
     subtotal = sum(p.price * cart[str(p.id)] for p in products)
     total = subtotal
 
@@ -213,10 +230,13 @@ def process_order(request):
         qty = cart[str(product.id)]
         if product.stock < qty:
             qty = product.stock
-        subtotal = product.price * qty
-        OrderItem.objects.create(order=order, product=product, quantity=qty)
-        product.stock -= qty
-        product.save()
+        #if qty == 0:
+            #cart[str(product.id)] = cart.popitem(str(product.id), 0)
+        if qty != 0:
+            subtotal = product.price * qty
+            OrderItem.objects.create(order=order, product=product, quantity=qty)
+            product.stock -= qty
+            product.save()
 
     response = redirect('shop-home')
     response.delete_cookie('cart')
@@ -249,7 +269,8 @@ def checkout(request):
         if instproduct.stock < quantity:
             cart[str(product.id)] = instproduct.stock
             redirbool = True
-
+        #if quantity == 0:
+                #cart[str(product.id)]=cart.popitem()
     if redirbool:
         response = redirect('cart')
         save_cart_to_response(response, cart)

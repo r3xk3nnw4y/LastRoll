@@ -467,10 +467,18 @@ def sellermyorders(request):
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
+
     context = {
         'orders': [
-            {'id': 1001, 'buyer': 'JohnDoe', 'items': 3, 'status': 'Processing'},
-            {'id': 1002, 'buyer': 'JaneSmith', 'items': 1, 'status': 'Shipped'},
+            {'id': 1001, 'buyer': 'JohnDoe', 'items': [
+                {'name': 'Item A', 'quantity': 2, 'id': 1},
+                {'name': 'Item B', 'quantity': 1, 'id': 2},
+            ], 'address': '123 Some Rd', 'is_shipped': False},
+
+            {'id': 1002, 'buyer': 'JaneDoe', 'items': [
+                {'name': 'Item A', 'quantity': 5, 'id': 1},
+                {'name': 'Item B', 'quantity': 2, 'id': 2},
+            ], 'address': '124 Some Rd', 'is_shipped': True}
         ]
     }
     return render(request, 'shop/sellermyorders.html', context)

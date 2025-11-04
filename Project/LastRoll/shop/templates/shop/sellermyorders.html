@@ -12,8 +12,9 @@
         <th>Order ID</th>
         <th>Buyer</th>
         <th>Items</th>
-        <th>Status</th>
+        <th>Address</th>
         <th>Actions</th>
+        <th>Shipping Status</th>
       </tr>
     </thead>
     <tbody>
@@ -21,9 +22,20 @@
       <tr>
         <td>{{ order.id }}</td>
         <td>{{ order.buyer }}</td>
-        <td>{{ order.items }}</td>
-        <td>{{ order.status }}</td>
+        <td>
+          {% for item in order.items %}
+            {{ item.quantity }} x {{ item.name }} ({{ item.id }})
+            <br>
+          {% endfor %}
+        </td>
+        <td>{{ order.address }}</td>
         <td><a href="#" class="btn btn-sm btn-outline-success">Print Label</a></td>
+        {% if order.is_shipped %}
+          <td>Shipped</td>
+        {% else %}
+          <!-- this should lead to a view that changes the DB -->
+          <td><a href="#" class="btn btn-sm btn-outline-success">Mark as Shipped</a></td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>

@@ -187,7 +187,7 @@ def process_order(request):
     #instorder = Order(timezone.now,request.user.buyer,0,10.59)
     #order = Order.objects.create
     #instorder = get_object_or_404(Order)
-    instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
+    
     #instorder.buyer = request.user.buyer
     #instorder.save
     print("okay it works so far b")
@@ -221,16 +221,9 @@ def process_order(request):
         #cart[str(product_id)] = cart.get(str(product_id), 0) + 1
 
         #if quantity != 0:
-        if redirbool !=1:
-            instproduct.stock = instproduct.stock-quantity
-            subtotal = product.price * quantity
-            instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
-            instproduct.save()
-            print(subtotal)
-            print(total)
-        else:
-            i=i #placehlder to keep it from yelling at me
-            #OrderItem.objects.delete()
+        
+
+
 
         
     #instorder.total = total
@@ -244,11 +237,27 @@ def process_order(request):
         save_cart_to_response(response, cart)
         return response
     else:
+        instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
+        for product in products:
+            quantity = cart[str(product.id)]
+            total += product.price * quantity
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+            #'subtotal': product.price * quantity,
+            })
+            instproduct = get_object_or_404(Product, pk=product.pk)
+            instproduct.stock = instproduct.stock-quantity
+            subtotal = product.price * quantity
+            instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
+            instproduct.save()
+            print(subtotal)
+            print(total)
         instorder.save()
         instorderitem.save()
         return redirect('shop-home')
 
-    
+   #====================================== 
 def checkout(request):
     """Checkout Page — only for Buyer accounts."""
     profile = request.user.profile

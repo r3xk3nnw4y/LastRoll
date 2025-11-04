@@ -59,6 +59,9 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    address = models.CharField(max_length=100, blank=True, null=True)
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE)
+    
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"

@@ -234,7 +234,7 @@ def process_order(request):
             #cart[str(product.id)] = cart.popitem(str(product.id), 0)
         if qty != 0:
             subtotal = product.price * qty
-            OrderItem.objects.create(order=order, product=product, quantity=qty)
+            OrderItem.objects.create(order=order, product=product, quantity=qty, address = address, seller = product.seller)
             product.stock -= qty
             product.save()
 

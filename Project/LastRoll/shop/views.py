@@ -169,8 +169,10 @@ def clear_cart(request):
     response.delete_cookie('cart')
     return response
 
+
+
 #right now this just deletes the cookies, like clear cart, remember to change it to actually move things to the database
-def check_out(request):
+def process_order(request):
     cart = {}
     response = redirect('cart')
     #cart = get_cart_from_cookies(request)
@@ -225,9 +227,39 @@ def check_out(request):
     instorder.save()
     instorderitem.save()
     response.delete_cookie('cart')  
-    return redirect('shop-home')      
-    return response
+    return redirect('shop-home')
     
+def checkout(request):
+    """Checkout Page — only for Buyer accounts."""
+    profile = request.user.profile
+
+    if profile.role != profile.ROLE_BUYER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    cart = get_cart_from_cookies(request)
+    products = Product.objects.filter(id__in=cart.keys())
+
+    cart_items = []
+    total = 0
+
+    for product in products:
+        quantity = cart[str(product.id)]
+        total += product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': product.price * quantity,
+        })
+
+    #total = 0
+
+    context = {
+        'username': request.user.username,
+        'cart_items': cart_items,
+        'total': total,
+    }
+
+    return render(request, 'shop/checkout.html', context)
 
 def get_cart_from_cookies(request):
     """Retrieve cart dictionary from cookies."""

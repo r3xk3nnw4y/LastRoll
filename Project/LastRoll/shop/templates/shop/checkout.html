@@ -1,12 +1,12 @@
 {% extends "shop/base.html" %}
-{% block title %}My Cart{% endblock %}
+{% block title %}Checkout{% endblock %}
 {% block sidebar %}{% endblock %}
 
 
 {% block content %}
 <div class="container mt-5">
   <div class="card shadow p-4" style="border-radius: 1.5rem; max-width: 750px; margin: auto;">
-    <h3 class="text-center mb-4">{{ username|capfirst }}’s Shopping Cart</h3>
+    <h3 class="text-center mb-4">{{ username|capfirst }}’s Cart</h3>
 
     {% if cart_items %}
       <table class="table table-striped">
@@ -33,16 +33,10 @@
       <div class="text-end mt-3">
         <h5><strong>Total:</strong> ${{ total|floatformat:2 }}</h5>
         <!-- <button class="btn btn-primary mt-2" disabled>Checkout (Coming Soon)</button> -->
-        <form action="{% url 'checkout' %}" method="post">
+        <form action="{% url 'process_order' %}" method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">
-          Checkout
-        </button>
-      </form>
-        <form action="{% url 'clear_cart' %}" method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">
-          Clear Cart
+          Confirm Order
         </button>
       </form>
       </div>

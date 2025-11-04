@@ -228,18 +228,24 @@ def process_order(request):
             instproduct.save()
             print(subtotal)
             print(total)
+        else:
+            i=i #placehlder to keep it from yelling at me
+            #OrderItem.objects.delete()
+
+        
     #instorder.total = total
     print("instorder total: ",instorder.total)
     print("total: ",total)
     #instorder = Order.objects.
-    instorder.save()
-    instorderitem.save()
+
     #response.delete_cookie('cart')  
     if redirbool:
         response = redirect('cart')
         save_cart_to_response(response, cart)
         return response
     else:
+        instorder.save()
+        instorderitem.save()
         return redirect('shop-home')
 
     

@@ -220,12 +220,7 @@ def process_order(request):
         save_cart_to_response(response, cart)
         #cart[str(product_id)] = cart.get(str(product_id), 0) + 1
 
-        #if quantity != 0:
-        
-
-
-
-        
+        #if quantity != 0: 
     #instorder.total = total
     print("instorder total: ",instorder.total)
     print("total: ",total)

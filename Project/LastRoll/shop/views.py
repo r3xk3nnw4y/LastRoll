@@ -319,13 +319,18 @@ def buyeraccount(request):
         return HttpResponseForbidden("You do not have permission to view this page.")
 
     # Account info for display
+    pending_apps = Order.objects.filter(buyer=request.user.buyer)
     context = {
         'name': request.user.get_full_name() or request.user.username,
         'email': request.user.email,
         'username': request.user.username,
         'member_since': request.user.date_joined,
         'payment_method': "N/A",  # Placeholder until you add real payment data
+        'sellers': pending_apps,
     }
+
+    #pending_apps = SellerApplication.objects.filter(status=SellerApplication.STATUS_PENDING)
+    #context = {'sellers': pending_apps}
 
     return render(request, 'shop/buyeraccount.html', context)
 
@@ -509,6 +514,8 @@ def adminaccount(request):
     }
 
     return render(request, 'shop/adminaccount.html', context)
+
+
 
 
 @login_required

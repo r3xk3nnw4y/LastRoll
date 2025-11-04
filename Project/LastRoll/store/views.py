@@ -67,11 +67,4 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Order.objects.filter(buyer__user=self.request.user)
 
-    @action(detail=True, methods=['post'])
-    def pay(self, request, pk=None):
-        order = self.get_object()
-        if order.is_paid:
-            return Response({"detail": "Order is already paid."}, status=status.HTTP_400_BAD_REQUEST)
-        order.is_paid = True
-        order.save()
-        return Response({"detail": f"Order {order.id} marked as paid."})
+

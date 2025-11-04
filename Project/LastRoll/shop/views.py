@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from store.models import Product
 from store.models import Seller
 from .forms import ProductForm
+from .forms import OrderForm
 from store.models import Order
 from store.models import OrderItem
 from django.contrib.auth.models import User
@@ -171,94 +172,55 @@ def clear_cart(request):
 
 #-------------------------------------------------
 
-#right now this just deletes the cookies, like clear cart, remember to change it to actually move things to the database
 def process_order(request):
-    cart = {}
-    response = redirect('cart')
-    #cart = get_cart_from_cookies(request)
-    #response.delete_cookie('cart')
-    #profile = request.user.profile
-    redirbool = 0
     cart = get_cart_from_cookies(request)
     products = Product.objects.filter(id__in=cart.keys())
 
-    cart_items = []
-    total = 0
-    #instorder = Order(timezone.now,request.user.buyer,0,10.59)
-    #order = Order.objects.create
-    #instorder = get_object_or_404(Order)
-    
-    #instorder.buyer = request.user.buyer
-    #instorder.save
-    print("okay it works so far b")
-    #print(Order.check)
-    #print(instorder.created_at)
-    #print(timezone.now)
+    if not products:
+        return redirect('view_cart')
 
-    #Order.save
-    #print(request)
-    for product in products:
-        quantity = cart[str(product.id)]
-        total += product.price * quantity
-        cart_items.append({
-            'product': product,
-            'quantity': quantity,
-            #'subtotal': product.price * quantity,
+    if request.method != "POST":
+        return redirect('checkout')
+
+    form = OrderForm(request.POST)
+    if not form.is_valid():
+        # If invalid, re-render checkout page with errors
+        return render(request, 'shop/checkout.html', {
+            'form': form,
+            'cart_items': [{'product': p, 'quantity': cart[str(p.id)]} for p in products],
+            'total': sum(p.price * cart[str(p.id)] for p in products),
         })
-        instproduct = get_object_or_404(Product, pk=product.pk)
-        print("instproduct",instproduct)
-        print("instproduct stock ",instproduct.stock)
-        print("instproduct price ",instproduct.price)
-        print(product)
-        print(quantity)
-        if instproduct.stock<quantity:
-            quantity= instproduct.stock 
-            cart[str(product.id)] = quantity
-            redirbool = 1
-            #return redirect('cart')     
 
-        save_cart_to_response(response, cart)
-        #cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+    address = form.cleaned_data['address']
+    payment = form.cleaned_data['payment']
 
-        #if quantity != 0: 
-    #instorder.total = total
-    #print("instorder total: ",instorder.total)
-    #print("total: ",total)
-    #instorder = Order.objects.
+    subtotal = sum(p.price * cart[str(p.id)] for p in products)
+    total = subtotal
 
-    #response.delete_cookie('cart')  
-    if redirbool:
-        response = redirect('cart')
-        save_cart_to_response(response, cart)
-        return response
-    else:
-        #total =0
-        instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
-        for product in products:
-            quantity = cart[str(product.id)]
-            #total += product.price * quantity
-            cart_items.append({
-                'product': product,
-                'quantity': quantity,
-            #'subtotal': product.price * quantity,
-            })
-            instproduct = get_object_or_404(Product, pk=product.pk)
-            instproduct.stock = instproduct.stock-quantity
-            subtotal = product.price * quantity
-            instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
-            instproduct.save()
-            print(subtotal)
-            print(total)
-        instorder.total = total
-        instorder.save()
-        instorderitem.save()
-        return redirect('shop-home')
+    order = Order.objects.create(
+        buyer=request.user.buyer,
+        address=address,
+        payment=payment,
+        total=total,
+    )
+
+    for product in products:
+        qty = cart[str(product.id)]
+        if product.stock < qty:
+            qty = product.stock
+        subtotal = product.price * qty
+        OrderItem.objects.create(order=order, product=product, quantity=qty)
+        product.stock -= qty
+        product.save()
+
+    response = redirect('shop-home')
+    response.delete_cookie('cart')
+    return response
 
    #====================================== 
 def checkout(request):
     """Checkout Page — only for Buyer accounts."""
     profile = request.user.profile
-    redirbool =0
     if profile.role != profile.ROLE_BUYER:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
@@ -267,6 +229,7 @@ def checkout(request):
 
     cart_items = []
     total = 0
+    redirbool = False
 
     for product in products:
         quantity = cart[str(product.id)]
@@ -276,31 +239,27 @@ def checkout(request):
             'quantity': quantity,
             'subtotal': product.price * quantity,
         })
-        instproduct = get_object_or_404(Product, pk=product.pk)
-        print("instproduct",instproduct)
-        print("instproduct stock ",instproduct.stock)
-        print("instproduct price ",instproduct.price)
-        print(product)
-        print(quantity)
-        if instproduct.stock<quantity:
-            quantity= instproduct.stock 
-            cart[str(product.id)] = quantity
-            redirbool = 1
-            #return redirect('cart')     
 
-    #total = 0
+        instproduct = get_object_or_404(Product, pk=product.pk)
+        if instproduct.stock < quantity:
+            cart[str(product.id)] = instproduct.stock
+            redirbool = True
+
+    if redirbool:
+        response = redirect('cart')
+        save_cart_to_response(response, cart)
+        return response
+
+    #Create a form instance (for both GET and POST rendering)
+    form = OrderForm()
 
     context = {
         'username': request.user.username,
         'cart_items': cart_items,
         'total': total,
+        'form': form, 
     }
-    if redirbool:
-        response = redirect('cart')
-        save_cart_to_response(response, cart)
-        return response
-    else:
-        return render(request, 'shop/checkout.html', context)
+    return render(request, 'shop/checkout.html', context)
 #--------------------------------
 def get_cart_from_cookies(request):
     """Retrieve cart dictionary from cookies."""

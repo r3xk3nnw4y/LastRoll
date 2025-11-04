@@ -28,11 +28,10 @@ if Product:
 if Order:
     @admin.register(Order)
     class OrderAdmin(admin.ModelAdmin):
-        list_display = ('id', 'buyer', 'created_at', 'is_paid', 'total')
-        list_filter = ('is_paid',)
+        list_display = ('id', 'buyer', 'created_at', 'total')
         search_fields = ('buyer__user__username',)
 
 if OrderItem:
     @admin.register(OrderItem)
     class OrderItemAdmin(admin.ModelAdmin):
-        list_display = ('order', 'product', 'quantity', 'price')
+        list_display = ('order', 'product', 'quantity')

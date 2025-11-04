@@ -169,7 +169,7 @@ def clear_cart(request):
     response.delete_cookie('cart')
     return response
 
-
+#-------------------------------------------------
 
 #right now this just deletes the cookies, like clear cart, remember to change it to actually move things to the database
 def process_order(request):
@@ -178,7 +178,7 @@ def process_order(request):
     #cart = get_cart_from_cookies(request)
     #response.delete_cookie('cart')
     #profile = request.user.profile
-
+    redirbool = 0
     cart = get_cart_from_cookies(request)
     products = Product.objects.filter(id__in=cart.keys())
 
@@ -188,8 +188,8 @@ def process_order(request):
     #order = Order.objects.create
     #instorder = get_object_or_404(Order)
     instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
-    instorder.buyer = request.user.buyer
-    instorder.save
+    #instorder.buyer = request.user.buyer
+    #instorder.save
     print("okay it works so far b")
     #print(Order.check)
     print(instorder.created_at)
@@ -212,27 +212,41 @@ def process_order(request):
         print(product)
         print(quantity)
         if instproduct.stock<quantity:
-            quantity= instproduct.stock      
-        instproduct.stock = instproduct.stock-quantity
-        subtotal = product.price * quantity
-        print(subtotal)
-        print(total)
-        if quantity != 0:
+            quantity= instproduct.stock 
+            cart[str(product.id)] = quantity
+            redirbool = 1
+            #return redirect('cart')     
+
+        save_cart_to_response(response, cart)
+        #cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+
+        #if quantity != 0:
+        if redirbool !=1:
+            instproduct.stock = instproduct.stock-quantity
+            subtotal = product.price * quantity
             instorderitem = OrderItem.objects.create(order=instorder,price=subtotal,product=product,quantity=quantity)
-        instproduct.save()
-    instorder.total = total
+            instproduct.save()
+            print(subtotal)
+            print(total)
+    #instorder.total = total
     print("instorder total: ",instorder.total)
     print("total: ",total)
     #instorder = Order.objects.
     instorder.save()
     instorderitem.save()
-    response.delete_cookie('cart')  
-    return redirect('shop-home')
+    #response.delete_cookie('cart')  
+    if redirbool:
+        response = redirect('cart')
+        save_cart_to_response(response, cart)
+        return response
+    else:
+        return redirect('shop-home')
+
     
 def checkout(request):
     """Checkout Page — only for Buyer accounts."""
     profile = request.user.profile
-
+    redirbool =0
     if profile.role != profile.ROLE_BUYER:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
@@ -250,6 +264,17 @@ def checkout(request):
             'quantity': quantity,
             'subtotal': product.price * quantity,
         })
+        instproduct = get_object_or_404(Product, pk=product.pk)
+        print("instproduct",instproduct)
+        print("instproduct stock ",instproduct.stock)
+        print("instproduct price ",instproduct.price)
+        print(product)
+        print(quantity)
+        if instproduct.stock<quantity:
+            quantity= instproduct.stock 
+            cart[str(product.id)] = quantity
+            redirbool = 1
+            #return redirect('cart')     
 
     #total = 0
 
@@ -258,9 +283,13 @@ def checkout(request):
         'cart_items': cart_items,
         'total': total,
     }
-
-    return render(request, 'shop/checkout.html', context)
-
+    if redirbool:
+        response = redirect('cart')
+        save_cart_to_response(response, cart)
+        return response
+    else:
+        return render(request, 'shop/checkout.html', context)
+#--------------------------------
 def get_cart_from_cookies(request):
     """Retrieve cart dictionary from cookies."""
     cart = {}

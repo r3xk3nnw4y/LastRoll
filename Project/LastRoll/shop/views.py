@@ -194,6 +194,11 @@ def process_order(request):
     address = form.cleaned_data['address']
     payment = form.cleaned_data['payment']
 
+    #throw error if payment isnt valid here
+    if payment not in ['VALID', 'TESTING', '000']:
+        messages.error(request, "Invalid payment code. Please choose another.")
+        return redirect('checkout')
+
     subtotal = sum(p.price * cart[str(p.id)] for p in products)
     total = subtotal
 

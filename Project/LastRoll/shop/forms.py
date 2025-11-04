@@ -48,11 +48,6 @@ class ProductForm(forms.ModelForm):
         fields = ['name', 'description', 'price', 'stock', 'image']
     
 
-VALID_PROMO_CODES = {
-    "VALID",
-    "TESTING"
-}
-
 class OrderForm(forms.ModelForm):
     address = forms.TextInput()
     payment = forms.CharField(max_length=100)
@@ -61,9 +56,3 @@ class OrderForm(forms.ModelForm):
         model = Order
         fields = ['payment', 'address']
 
-    def clean_payment(self):
-        code = self.cleaned_data.get('payment', '').strip()
-        if code and code.upper() not in VALID_PROMO_CODES:
-            raise forms.ValidationError("That promo code is not valid.")
-        return code.upper()
-   

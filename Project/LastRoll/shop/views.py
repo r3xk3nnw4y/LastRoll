@@ -224,9 +224,10 @@ def check_out(request):
     #instorder = Order.objects.
     instorder.save()
     instorderitem.save()
-            
-
+    response.delete_cookie('cart')  
+    return redirect('shop-home')      
     return response
+    
 
 def get_cart_from_cookies(request):
     """Retrieve cart dictionary from cookies."""
@@ -475,6 +476,12 @@ def update_seller_status(request, seller_id):
 
     if action == 'approve':
         app.status = SellerApplication.STATUS_APPROVED
+        sellmv = get_object_or_404(Seller,user_id=app.user_id)
+        sellmv.location = app.location
+        sellmv.description = app.description
+        sellmv.store_name = app.store_name
+        sellmv.save()
+
         messages.success(request, f"Seller '{app.store_name}' has been approved.")
     elif action == 'deny':
         app.status = SellerApplication.STATUS_DENIED

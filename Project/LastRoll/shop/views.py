@@ -192,7 +192,7 @@ def process_order(request):
     #instorder.save
     print("okay it works so far b")
     #print(Order.check)
-    print(instorder.created_at)
+    #print(instorder.created_at)
     #print(timezone.now)
 
     #Order.save
@@ -222,8 +222,8 @@ def process_order(request):
 
         #if quantity != 0: 
     #instorder.total = total
-    print("instorder total: ",instorder.total)
-    print("total: ",total)
+    #print("instorder total: ",instorder.total)
+    #print("total: ",total)
     #instorder = Order.objects.
 
     #response.delete_cookie('cart')  
@@ -232,10 +232,11 @@ def process_order(request):
         save_cart_to_response(response, cart)
         return response
     else:
+        #total =0
         instorder = Order.objects.create(buyer=request.user.buyer,total = 5)
         for product in products:
             quantity = cart[str(product.id)]
-            total += product.price * quantity
+            #total += product.price * quantity
             cart_items.append({
                 'product': product,
                 'quantity': quantity,
@@ -248,6 +249,7 @@ def process_order(request):
             instproduct.save()
             print(subtotal)
             print(total)
+        instorder.total = total
         instorder.save()
         instorderitem.save()
         return redirect('shop-home')

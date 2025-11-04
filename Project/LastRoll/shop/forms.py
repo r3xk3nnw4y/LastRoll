@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from store.models import SellerApplication
 from store.models import Product
+from store.models import Order
 
 
 class BuyerRegisterForm(forms.ModelForm):
@@ -46,4 +47,12 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = ['name', 'description', 'price', 'stock', 'image']
     
+
+class OrderForm(forms.ModelForm):
+    address = forms.TextInput()
+    payment = forms.CharField(max_length=100)
+
+    class Meta:
+        model = Order
+        fields = ['payment', 'address']
 

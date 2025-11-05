@@ -606,8 +606,11 @@ def cashout(request):
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
     instseller = get_object_or_404(Seller, user_id=profile.id)
-    instseller.price =0
-    messages.success(request, f"the cheque is in the mail")
+    if instseller.price >0:
+        instseller.price =0
+        messages.success(request, f"the cheque is in the mail")
+    else:
+        messages.success(request, f"insufficient balance")
     context = {
         'sales_summary': {
             'total_orders': 42,

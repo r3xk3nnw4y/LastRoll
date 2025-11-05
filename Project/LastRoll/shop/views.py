@@ -237,6 +237,10 @@ def process_order(request):
             subtotal = product.price * qty
             OrderItem.objects.create(order=order, product=product, quantity=qty)
             product.stock -= qty
+            instseller = get_object_or_404(Seller, pk=product.seller)
+            mastseller = get_object_or_404(Seller, pk=8)
+            mastseller.price += subtotal*0.1
+            instseller.price += subtotal*0.9
             product.save()
     
     response = redirect('shop-home')
@@ -573,14 +577,35 @@ def sellersales(request):
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
+    instseller = get_object_or_404(Seller, pk=profile.user_id)
     context = {
         'sales_summary': {
             'total_orders': 42,
-            'total_revenue': 1250.75,
+            'total_revenue': instseller.price,
             'pending_shipments': 5,
         }
     }
     return render(request, 'shop/sellersales.html', context)
+
+@login_required
+def cashout(request):
+    
+    """Sales summary page — basic placeholder."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    instseller = get_object_or_404(Seller, pk=profile.user_id)
+    instseller.price =0
+    messages.success(request, f"the cheque is in the mail")
+    context = {
+        'sales_summary': {
+            'total_orders': 42,
+            'total_revenue': instseller.price,
+            'pending_shipments': 5,
+        }
+    }
+    return render(request, 'shop/sellersales.html',context)
+
 
 @login_required
 def mark_orderitems_as_shipped(request, order_pk, seller_pk):

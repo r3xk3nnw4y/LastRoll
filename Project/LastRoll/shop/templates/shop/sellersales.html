@@ -9,6 +9,7 @@
     <p><strong>Total Orders:</strong> {{ sales_summary.total_orders }}</p>
     <p><strong>Total Revenue:</strong> ${{ sales_summary.total_revenue }}</p>
     <p><strong>Pending Shipments:</strong> {{ sales_summary.pending_shipments }}</p>
+    <a href="{% url 'shop-cashout' %}" class="btn btn-outline-success btn-lg btn-block my-2">Cash out</a>
   </div>
 </div>
 {% endblock %}

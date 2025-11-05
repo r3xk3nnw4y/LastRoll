@@ -561,6 +561,26 @@ def sellersales(request):
     return render(request, 'shop/sellersales.html', context)
 
 @login_required
+def cashout(request):
+    
+    """Sales summary page — basic placeholder."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    instseller = get_object_or_404(Seller, pk=profile.user_id)
+    instseller.price =0
+    messages.success(request, f"the cheque is in the mail")
+    context = {
+        'sales_summary': {
+            'total_orders': 42,
+            'total_revenue': instseller.price,
+            'pending_shipments': 5,
+        }
+    }
+    return render(request, 'shop/sellersales.html',context)
+
+
+@login_required
 def mark_orderitems_as_shipped(request, order_pk, seller_pk):
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:

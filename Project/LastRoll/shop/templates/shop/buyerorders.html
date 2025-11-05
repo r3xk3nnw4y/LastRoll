@@ -1,0 +1,54 @@
+{% extends "shop/base.html" %}
+{% block title %}My Orders{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h1 class="text-center mb-4">My Orders</h1>
+
+  <table class="table table-striped text-center shadow-sm">
+    <thead class="thead-dark">
+      <tr>
+        <th>Order ID</th>
+        <th>Items</th>
+        <th>Address</th>
+        <th>Status</th>
+        <th>Refund</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>
+          {% for item in order.items %}
+            {{ item.quantity }} × {{ item.name }}<br>
+          {% endfor %}
+        </td>
+        <td>{{ order.address }}</td>
+        <td>
+          {% if order.is_refunded %}
+            <span class="text-danger font-weight-bold">Buyer Refunded</span>
+          {% elif order.is_shipped %}
+            Shipped
+          {% else %}
+            Not Yet Shipped
+          {% endif %}
+        </td>
+        <td>
+          {% if not order.is_refunded %}
+          <form method="post" action="{% url 'refund_order' order.id %}">
+            {% csrf_token %}
+            <input type="text" name="reason" class="form-control mb-2" placeholder="Reason for refund (optional)">
+            <button class="btn btn-outline-danger btn-sm" type="submit">Refund Order</button>
+          </form>
+          {% else %}
+            <small class="text-muted">{{ order.refund_reason }}</small>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+        <tr><td colspan="5" class="text-muted">No orders found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

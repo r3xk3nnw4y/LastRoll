@@ -63,6 +63,8 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     is_shipped = models.BooleanField(default=False)
+    is_refunded = models.BooleanField(default=False)
+    refund_reason = models.CharField(max_length=255, default="Buyer refunded the order.")
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"

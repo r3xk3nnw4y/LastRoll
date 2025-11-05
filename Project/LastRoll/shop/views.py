@@ -11,6 +11,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from store.models import Product
 from store.models import Seller
+from store.models import Buyer
 from .forms import ProductForm
 from .forms import OrderForm
 from store.models import Order
@@ -318,48 +319,75 @@ def buyeraccount(request):
     if profile.role != profile.ROLE_BUYER:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
-
-    
-    order_items = OrderItem.objects.filter(order__buyer__user=request.user).select_related('order', 'product')
-
-    # Build orders list
-    orders_dict = {}
-
-    for item in order_items:
-        order = item.order
-        if order.id not in orders_dict:
-            orders_dict[order.id] = {
-                'id': order.id,
-                'buyer': order.buyer.user.username,
-                'address': order.address,
-                'items': [],
-                'is_shipped': False
-            }
-        if(item.is_shipped):
-            orders_dict[order.id]['is_shipped'] = True
-        orders_dict[order.id]['items'].append({
-            'name': item.product.name,
-            'quantity': item.quantity,
-            'id': item.product.id
-        })
-
-
     # Account info for display
     context = {
         'name': request.user.get_full_name() or request.user.username,
         'email': request.user.email,
         'username': request.user.username,
         'member_since': request.user.date_joined,
-        'payment_method': "N/A",  # Placeholder until you add real payment data
-        'orders': list(orders_dict.values()),
+        'payment_method': "N/A",  # Placeholder until payment info exists
     }
 
-    
-
-    #pending_apps = SellerApplication.objects.filter(status=SellerApplication.STATUS_PENDING)
-    #context = {'sellers': pending_apps}
-
     return render(request, 'shop/buyeraccount.html', context)
+
+@login_required
+def buyerorders(request):
+    """Displays buyer’s orders and refund options."""
+    if request.user.profile.role != request.user.profile.ROLE_BUYER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    # Get Buyer instance
+    buyer = Buyer.objects.get(user=request.user)
+
+    # Gather all orders for this buyer
+    buyer_orders = Order.objects.filter(buyer=buyer)
+    orders = []
+
+    for order in buyer_orders:
+        items = [
+            {"id": item.product.id, "name": item.product.name, "quantity": item.quantity}
+            for item in order.items.all()
+        ]
+        orders.append({
+            "id": order.id,
+            "items": items,
+            "address": order.address,
+            "is_shipped": all(i.is_shipped for i in order.items.all()),
+            "is_refunded": any(i.is_refunded for i in order.items.all()),
+            "refund_reason": next((i.refund_reason for i in order.items.all() if i.is_refunded), None),
+        })
+
+    return render(request, 'shop/buyerorders.html', {'orders': orders})
+
+
+@login_required
+def refund_order(request, order_id):
+    """Allow buyers to refund their orders."""
+    # Ensure the user is a buyer
+    if request.user.profile.role != request.user.profile.ROLE_BUYER:
+        return HttpResponseForbidden("You do not have permission to request a refund.")
+
+    # Convert the user → Buyer instance
+    buyer = get_object_or_404(Buyer, user=request.user)
+
+    # Ensure the order belongs to this buyer
+    order = get_object_or_404(Order, id=order_id, buyer=buyer)
+
+    if request.method == "POST":
+        # Get the reason or fallback to default
+        reason = request.POST.get("reason", "Buyer requested a refund.")
+
+        # Mark all items as refunded
+        for item in order.items.all():
+            item.is_refunded = True
+            item.refund_reason = reason
+            item.save()
+
+        messages.success(request, f"Refund processed for Order #{order.id}")
+        return redirect('shop-buyerorders')
+
+    return redirect('shop-buyerorders')
+
 
 @login_required
 def alllistings(request):
@@ -490,31 +518,20 @@ def remove_product(request, pk):
 
 @login_required
 def sellermyorders(request):
-    """Seller orders — view incoming orders."""
+    """Seller orders — view incoming orders, mark shipped, or see refund status."""
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
-    context = {
-        'orders': [
-            {'id': 1001, 'buyer': 'JohnDoe', 'items': [
-                {'name': 'Item A', 'quantity': 2, 'id': 1},
-                {'name': 'Item B', 'quantity': 1, 'id': 2},
-            ], 'address': '123 Some Rd', 'is_shipped': False},
+    seller = get_object_or_404(Seller, user=request.user)
 
-            {'id': 1002, 'buyer': 'JaneDoe', 'items': [
-                {'name': 'Item A', 'quantity': 5, 'id': 1},
-                {'name': 'Item B', 'quantity': 2, 'id': 2},
-            ], 'address': '124 Some Rd', 'is_shipped': True}
-        ]
-    }
-    
-    seller_listings = Product.objects.filter(seller__user=profile.user)
-    order_items = OrderItem.objects.filter(product__in=seller_listings).select_related('order', 'product')
+    # Pull all order items tied to this seller's products
+    order_items = (
+        OrderItem.objects.filter(product__seller=seller)
+        .select_related('order', 'product', 'order__buyer')
+    )
 
-    # Build orders list
     orders_dict = {}
-
     for item in order_items:
         order = item.order
         if order.id not in orders_dict:
@@ -523,22 +540,32 @@ def sellermyorders(request):
                 'buyer': order.buyer.user.username,
                 'address': order.address,
                 'items': [],
-                'is_shipped': False
+                'is_shipped': False,
+                'is_refunded': False,
+                'refund_reason': None,
             }
-        if(item.is_shipped):
+
+        # Shipping and refund aggregation
+        if item.is_shipped:
             orders_dict[order.id]['is_shipped'] = True
+        if item.is_refunded:
+            orders_dict[order.id]['is_refunded'] = True
+            orders_dict[order.id]['refund_reason'] = item.refund_reason
+
+        # Add product to order
         orders_dict[order.id]['items'].append({
+            'id': item.product.id,
             'name': item.product.name,
             'quantity': item.quantity,
-            'id': item.product.id
         })
 
     context = {
         'orders': list(orders_dict.values()),
-        'seller_id': request.user.seller.pk
-    
+        'seller_id': seller.id,
     }
+
     return render(request, 'shop/sellermyorders.html', context)
+
 
 @login_required
 def sellersales(request):

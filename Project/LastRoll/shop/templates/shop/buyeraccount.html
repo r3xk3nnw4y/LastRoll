@@ -31,42 +31,5 @@
             <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
           </form>
     </div>
-
-    <!-- Recent Orders Section -->
-
-    <h2 class="text-center mb-4">Recent Orders</h2>
-
-  <table class="table table-striped text-center shadow-sm">
-    <thead class="thead-dark">
-      <tr>
-        <th>Order ID</th>
-        <th>Buyer</th>
-        <th>Items</th>
-        <th>Address</th>
-        <th>Shipping Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for order in orders %}
-      <tr>
-        <td>{{ order.id }}</td>
-        <td>{{ order.buyer }}</td>
-        <td>
-          {% for item in order.items %}
-            {{ item.quantity }} x {{ item.name }} ({{ item.id }})
-            <br>
-          {% endfor %}
-        </td>
-        <td>{{ order.address }}</td>
-        {% if order.is_shipped %}
-          <td>Shipped</td>
-        {% else %}
-          <td>Not Yet Shipped</td>
-        {% endif %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
     
 {% endblock %}

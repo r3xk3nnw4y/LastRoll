@@ -47,6 +47,9 @@ urlpatterns = [
     path('buyeraccount/', views.buyeraccount, name='shop-buyeraccount'),
     path('alllistings/', views.alllistings, name='shop-alllistings'),
     path('featuredlistings/', views.featuredlistings, name='shop-featuredlistings'),
+    path('buyerorders/', views.buyerorders, name='shop-buyerorders'),
+    path('refund/<int:order_id>/', views.refund_order, name='refund_order'),
+
 
     # Seller Pages
     path('sellerdashboard/', views.sellerdashboard, name='shop-sellerdashboard'),

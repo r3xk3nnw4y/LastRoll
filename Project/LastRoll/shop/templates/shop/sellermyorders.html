@@ -19,27 +19,37 @@
     </thead>
     <tbody>
       {% for order in orders %}
-      <tr>
+      <tr {% if order.is_refunded %}class="table-secondary text-muted"{% endif %}>
         <td>{{ order.id }}</td>
         <td>{{ order.buyer }}</td>
         <td>
           {% for item in order.items %}
-            {{ item.quantity }} x {{ item.name }} ({{ item.id }})
-            <br>
+            {{ item.quantity }} × {{ item.name }} ({{ item.id }})<br>
           {% endfor %}
         </td>
         <td>{{ order.address }}</td>
-        <td><a href="#" class="btn btn-sm btn-outline-success">Print Label</a></td>
-        {% if order.is_shipped %}
-          <td>Shipped</td>
+
+        {% if order.is_refunded %}
+          <!-- Refunded Orders -->
+          <td colspan="2" class="text-danger font-weight-bold align-middle">
+            Buyer Refunded<br>
+            <small class="text-muted">{{ order.refund_reason }}</small>
+          </td>
         {% else %}
-          <!-- this should lead to a view that changes the DB -->
+          <!-- Active Orders -->
+          <td>
+            <button class="btn btn-sm btn-outline-success" type="button">Print Label</button>
+          </td>
+          {% if order.is_shipped %}
+            <td>Shipped</td>
+          {% else %}
             <td>
               <form action="{% url 'mark_as_shipped' order.id seller_id %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button class="btn btn-sm btn-outline-success" type="submit">Mark As Shipped</button>
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-success" type="submit">Mark As Shipped</button>
               </form>
             </td>
+          {% endif %}
         {% endif %}
       </tr>
       {% endfor %}

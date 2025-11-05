@@ -550,10 +550,11 @@ def sellersales(request):
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
+    instseller = get_object_or_404(Seller, pk=profile.user_id)
     context = {
         'sales_summary': {
             'total_orders': 42,
-            'total_revenue': 1250.75,
+            'total_revenue': instseller.price,
             'pending_shipments': 5,
         }
     }

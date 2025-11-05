@@ -236,6 +236,10 @@ def process_order(request):
             subtotal = product.price * qty
             OrderItem.objects.create(order=order, product=product, quantity=qty)
             product.stock -= qty
+            instseller = get_object_or_404(Seller, pk=product.seller)
+            mastseller = get_object_or_404(Seller, pk=8)
+            mastseller.price += subtotal*0.1
+            instseller.price += subtotal*0.9
             product.save()
     
     response = redirect('shop-home')

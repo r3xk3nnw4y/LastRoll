@@ -26,24 +26,35 @@
         <td>{{ order.address }}</td>
         <td>
           {% if order.is_refunded %}
-            <span class="text-danger font-weight-bold">Buyer Refunded</span>
+            <span class="text-danger font-weight-bold">Refund Requested</span>
           {% elif order.is_shipped %}
             Shipped
           {% else %}
             Not Yet Shipped
           {% endif %}
         </td>
-        <td>
           {% if not order.is_refunded %}
-          <form method="post" action="{% url 'refund_order' order.id %}">
+        <td>
+          <form method="post" action="{% url 'refund_order' order.id %}" class="d-flex align-items-center">
             {% csrf_token %}
-            <input type="text" name="reason" class="form-control mb-2" placeholder="Reason for refund (optional)">
-            <button class="btn btn-outline-danger btn-sm" type="submit">Refund Order</button>
+            <input 
+              type="text" 
+              name="reason" 
+              class="form-control mb-2" 
+              placeholder="Enter Reason" 
+              required>
+            <button 
+              class="btn btn-outline-danger mb-2" 
+              type="submit">
+              Request Refund
+            </button>
           </form>
-          {% else %}
-            <small class="text-muted">{{ order.refund_reason }}</small>
-          {% endif %}
         </td>
+          {% else %}
+        <td>
+            <small class="text-muted">Reason: {{ order.refund_reason }}</small>
+        </td>
+          {% endif %}
       </tr>
       {% empty %}
         <tr><td colspan="5" class="text-muted">No orders found.</td></tr>

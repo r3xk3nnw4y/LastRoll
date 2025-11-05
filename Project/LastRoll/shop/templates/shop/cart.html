@@ -32,20 +32,24 @@
 
       <div class="text-end mt-3">
         <h5><strong>Total:</strong> ${{ total|floatformat:2 }}</h5>
-        <!-- <button class="btn btn-primary mt-2" disabled>Checkout (Coming Soon)</button> -->
-        <form action="{% url 'checkout' %}" method="post">
+      </div>
+
+      <br>
+      <div class="d-grid gap-2">
+      <form action="{% url 'checkout' %}" method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary w-100">
           Checkout
         </button>
       </form>
-        <form action="{% url 'clear_cart' %}" method="post">
+      <br>
+      <form action="{% url 'clear_cart' %}" method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-outline-danger w-100">
           Clear Cart
         </button>
       </form>
-      </div>
+    </div>
     {% else %}
       <p class="text-center text-muted">Your cart is empty.</p>
     {% endif %}

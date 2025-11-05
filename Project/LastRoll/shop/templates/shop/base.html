@@ -55,24 +55,24 @@
                             <img style="width:100px; max-width:30vw" src="{% static 'shop/AccountButton.png' %}"> </img>
                         </a>
                         </div>
-
                     {% elif user.profile.role == user.profile.ROLE_BUYER %} <!--is buyer-->
-                        <div style="position:absolute; top: 25%; right:5vw">
-                        <a href="{% url 'shop-cart' %}">
-                            <img style="position:absolute; width:70px; max-width:25vw; z-index:1; right:0px; padding-right: 3vw; top: -5vh" src="{% static 'shop/CartButton.png' %}"> </img>
-                        </a>
-                        <a href="{% url 'shop-buyeraccount' %}">
-                            <img style="position:absolute; width:100px; max-width:30vw; right:55px; padding-right: 3vw" src="{% static 'shop/AccountButton.png' %}"> </img>
-                        </a>
+                        <div style="position:absolute; top: 22%; right:8vw; padding-right:50px">
+                            <a href="{% url 'shop-buyeraccount' %}">
+                                <img style="width:100px; max-width:30vw" src="{% static 'shop/AccountButton.png' %}"> </img>
+                            </a>
                         </div>
-
+                        <div style="position:absolute; top: 7%; right:8vw">
+                            <a href="{% url 'shop-cart' %}">
+                                <img style="width:66px; max-width:20vw" src="{% static 'shop/CartButton.png' %}"> </img>
+                            </a>
+                        </div>
                     {% endif %}
                 {% else %}
-                <div style="position:absolute; top: 22%; right:8vw">
-                <a href="{% url 'shop-login' %}">
-                    <img style="width:100px; max-width:30vw" src="{% static 'shop/LoginButton.png' %}"> </img>
-                </a>
-                </div>
+                    <div style="position:absolute; top: 22%; right:8vw">
+                        <a href="{% url 'shop-login' %}">
+                            <img style="width:100px; max-width:30vw" src="{% static 'shop/LoginButton.png' %}"> </img>
+                        </a>
+                    </div>
                 {% endif %}
             </div>
         </img>
@@ -106,6 +106,8 @@
             {% endfor %}
         </div>
     {% endif %}
+
+    <br><br>
 </div>
   </body>
 </html>

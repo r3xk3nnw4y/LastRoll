@@ -237,10 +237,14 @@ def process_order(request):
             subtotal = product.price * qty
             OrderItem.objects.create(order=order, product=product, quantity=qty)
             product.stock -= qty
-            instseller = get_object_or_404(Seller, pk=product.seller)
-            mastseller = get_object_or_404(Seller, pk=8)
-            mastseller.price += subtotal*0.1
-            instseller.price += subtotal*0.9
+            print(product.seller_id)
+            instseller = get_object_or_404(Seller, pk=product.seller_id)
+            mastseller = get_object_or_404(Seller, user_id=8)
+            print(float(subtotal) * 0.9)
+            mastseller.price = float(mastseller.price) + float(subtotal) * 0.1
+            instseller.price = float(instseller.price) + float(subtotal) * 0.9
+            mastseller.save()
+            instseller.save()
             product.save()
     
     response = redirect('shop-home')
@@ -386,6 +390,12 @@ def refund_order(request, order_id):
             item.is_refunded = True
             item.refund_reason = reason
             item.save()
+            instproduct = get_object_or_404(Product,id=item.product_id)
+            print(instproduct.seller_id)
+            instseller = get_object_or_404(Seller,id=instproduct.seller_id)
+            instseller.price -= instproduct.price
+            instseller.save()
+
 
         messages.success(request, f"Refund processed for Order #{order.id}")
         return redirect('shop-buyerorders')
@@ -577,7 +587,8 @@ def sellersales(request):
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
-    instseller = get_object_or_404(Seller, pk=profile.user_id)
+    instseller = get_object_or_404(Seller, user_id=profile.user_id)
+    print(profile.user_id)
     context = {
         'sales_summary': {
             'total_orders': 42,
@@ -594,7 +605,7 @@ def cashout(request):
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
-    instseller = get_object_or_404(Seller, pk=profile.user_id)
+    instseller = get_object_or_404(Seller, user_id=profile.id)
     instseller.price =0
     messages.success(request, f"the cheque is in the mail")
     context = {

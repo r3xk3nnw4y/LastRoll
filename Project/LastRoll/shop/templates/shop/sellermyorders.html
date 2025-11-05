@@ -34,7 +34,12 @@
           <td>Shipped</td>
         {% else %}
           <!-- this should lead to a view that changes the DB -->
-          <td><a href="#" class="btn btn-sm btn-outline-success">Mark as Shipped</a></td>
+            <td>
+              <form action="{% url 'mark_as_shipped' order.id seller_id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-success" type="submit">Mark As Shipped</button>
+              </form>
+            </td>
         {% endif %}
       </tr>
       {% endfor %}

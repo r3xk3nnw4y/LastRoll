@@ -318,16 +318,43 @@ def buyeraccount(request):
     if profile.role != profile.ROLE_BUYER:
         return HttpResponseForbidden("You do not have permission to view this page.")
 
+
+    
+    order_items = OrderItem.objects.filter(order__buyer__user=request.user).select_related('order', 'product')
+
+    # Build orders list
+    orders_dict = {}
+
+    for item in order_items:
+        order = item.order
+        if order.id not in orders_dict:
+            orders_dict[order.id] = {
+                'id': order.id,
+                'buyer': order.buyer.user.username,
+                'address': order.address,
+                'items': [],
+                'is_shipped': False
+            }
+        if(item.is_shipped):
+            orders_dict[order.id]['is_shipped'] = True
+        orders_dict[order.id]['items'].append({
+            'name': item.product.name,
+            'quantity': item.quantity,
+            'id': item.product.id
+        })
+
+
     # Account info for display
-    pending_apps = Order.objects.filter(buyer=request.user.buyer)
     context = {
         'name': request.user.get_full_name() or request.user.username,
         'email': request.user.email,
         'username': request.user.username,
         'member_since': request.user.date_joined,
         'payment_method': "N/A",  # Placeholder until you add real payment data
-        'sellers': pending_apps,
+        'orders': list(orders_dict.values()),
     }
+
+    
 
     #pending_apps = SellerApplication.objects.filter(status=SellerApplication.STATUS_PENDING)
     #context = {'sellers': pending_apps}
@@ -481,6 +508,36 @@ def sellermyorders(request):
             ], 'address': '124 Some Rd', 'is_shipped': True}
         ]
     }
+    
+    seller_listings = Product.objects.filter(seller__user=profile.user)
+    order_items = OrderItem.objects.filter(product__in=seller_listings).select_related('order', 'product')
+
+    # Build orders list
+    orders_dict = {}
+
+    for item in order_items:
+        order = item.order
+        if order.id not in orders_dict:
+            orders_dict[order.id] = {
+                'id': order.id,
+                'buyer': order.buyer.user.username,
+                'address': order.address,
+                'items': [],
+                'is_shipped': False
+            }
+        if(item.is_shipped):
+            orders_dict[order.id]['is_shipped'] = True
+        orders_dict[order.id]['items'].append({
+            'name': item.product.name,
+            'quantity': item.quantity,
+            'id': item.product.id
+        })
+
+    context = {
+        'orders': list(orders_dict.values()),
+        'seller_id': request.user.seller.pk
+    
+    }
     return render(request, 'shop/sellermyorders.html', context)
 
 @login_required
@@ -497,6 +554,20 @@ def sellersales(request):
         }
     }
     return render(request, 'shop/sellersales.html', context)
+
+@login_required
+def mark_orderitems_as_shipped(request, order_pk, seller_pk):
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+    order = get_object_or_404(Order, pk=order_pk)
+    seller = get_object_or_404(Seller, pk=seller_pk)
+
+    order_items = OrderItem.objects.filter(order=order, product__seller=seller).all()
+    for item in order_items:
+        item.is_shipped = True
+        item.save()
+    return redirect('shop-sellermyorders')
 
 @login_required
 def admindashboard(request):

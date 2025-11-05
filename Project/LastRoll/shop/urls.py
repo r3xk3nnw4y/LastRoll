@@ -55,6 +55,7 @@ urlpatterns = [
     path('sellercreatelisting/', views.sellercreatelisting, name='shop-sellercreatelisting'),
     path('sellermyorders/', views.sellermyorders, name='shop-sellermyorders'),
     path('sellersales/', views.sellersales, name='shop-sellersales'),
+    path('products/<int:order_pk>/<int:seller_pk>/mark_as_shipped/', views.mark_orderitems_as_shipped, name='mark_as_shipped'),
 
     # Admin Pages
     path('admindashboard/', views.admindashboard, name='shop-admindashboard'),

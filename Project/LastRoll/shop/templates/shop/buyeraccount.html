@@ -24,46 +24,49 @@
       </div>
     </div>
 
-    <!-- Recent Orders Section -->
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-secondary text-white">
-        Recent Orders
-      </div>
-
-    {% for app in sellers %}
-      <div class="card mb-4 shadow-sm p-4">
-        <h5 class="card-title">{{ app.store_name }}</h5>
-        <p><strong>ordernumber:</strong> {{ app.id }}</p>
-        <strong>Order time:</strong> {{ app.created_at }}
-        <strong>total:</strong> {{ app.total }}
-        <strong>Description:</strong> {{ app.address }}
-        <!--<p><strong>Status:</strong> {{ app.get_status_display }}</p>
-        #<p><small>Submitted at: {{ app.submitted_at }}</small></p>
-
-        <div class="mt-3">
-          <form method="post" action="{% url 'shop-update-seller-status' app.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
-          </form>
-          <form method="post" action="{% url 'shop-update-seller-status' app.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" name="action" value="deny" class="btn btn-danger btn-sm">Deny</button>
-          </form> -->
-        </div>
-      </div>
-      {% empty %}
-        <p class="text-center text-muted">No pending seller applications found.</p>
-      {% endfor %}
-      
-    </div>
-
     <!-- Account Actions -->
     <div class="text-center mt-4">
-      <form method="post" action="{% url 'shop-logout' %}" style="display:inline;">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
-</form>
-
+          <form method="post" action="{% url 'shop-logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-lg">Log Out</button>
+          </form>
     </div>
-  </div>
+
+    <!-- Recent Orders Section -->
+
+    <h2 class="text-center mb-4">Recent Orders</h2>
+
+  <table class="table table-striped text-center shadow-sm">
+    <thead class="thead-dark">
+      <tr>
+        <th>Order ID</th>
+        <th>Buyer</th>
+        <th>Items</th>
+        <th>Address</th>
+        <th>Shipping Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.buyer }}</td>
+        <td>
+          {% for item in order.items %}
+            {{ item.quantity }} x {{ item.name }} ({{ item.id }})
+            <br>
+          {% endfor %}
+        </td>
+        <td>{{ order.address }}</td>
+        {% if order.is_shipped %}
+          <td>Shipped</td>
+        {% else %}
+          <td>Not Yet Shipped</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+    
 {% endblock %}

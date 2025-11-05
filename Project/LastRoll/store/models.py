@@ -16,6 +16,7 @@ class Seller(models.Model):
     store_name = models.CharField(max_length=100, blank=True)
     location = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=8, decimal_places=2,default=0)
 
     def __str__(self):
         return self.store_name or f"Seller {self.user.username}"
@@ -45,6 +46,8 @@ class Order(models.Model):
     payment = models.CharField(max_length=50, blank=True, null=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+#class bank(models.Model):
+    #vault = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 
     def __str__(self):

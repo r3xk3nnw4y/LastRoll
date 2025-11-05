@@ -237,7 +237,7 @@ def process_order(request):
             OrderItem.objects.create(order=order, product=product, quantity=qty)
             product.stock -= qty
             product.save()
-
+    
     response = redirect('shop-home')
     response.delete_cookie('cart')
     return response

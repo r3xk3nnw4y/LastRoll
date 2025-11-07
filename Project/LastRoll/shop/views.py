@@ -406,17 +406,23 @@ def refund_order(request, order_id):
 @login_required
 def alllistings(request):
     query = request.GET.get('name', '').strip()
+    hide_out_of_stock = request.GET.get('hide_out_of_stock', 'off') == 'on'
+
     listings = Product.objects.filter(status=1)
 
     if query:
         listings = listings.filter(name__icontains=query)
+    if hide_out_of_stock:
+        listings = listings.filter(stock__gt=0)
 
     context = {
         'title': 'All Listings',
         'listings': listings,
-        'query': query
+        'query': query,
+        'hide_out_of_stock': hide_out_of_stock,
     }
     return render(request, 'shop/alllistings.html', context)
+
 
 def featuredlistings(request):
     context = {

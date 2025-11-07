@@ -7,32 +7,44 @@
 <div class="container mt-4">
   <h1 class="text-center mb-4">All Listings</h1>
 
-  <!-- Search Form -->
+  <!-- Search & Filter Form -->
   <form method="GET" class="mb-5">
     <div class="card shadow-sm p-4">
-      <div class="form-row">
-        <!-- Name Search -->
-        <div class="form-group col-md-4 mx-auto">
+      <div class="form-row row align-items-center">
+        <!-- Search by Name -->
+        <div class="form-group col-md-5 mx-auto">
           <label for="searchName">Search by Name</label>
           <input type="text" id="searchName" name="name" class="form-control"
                  placeholder="Enter product name" value="{{ query }}">
         </div>
-      </div>
 
-      <div class="text-center mt-3">
-        <button type="submit" class="btn btn-primary px-5">Search</button>
-        <button type="reset" class="btn btn-outline-secondary ml-2" onclick="window.location.href='{{ request.path }}'">Reset</button>
+        <!-- Hide Out of Stock Toggle -->
+        <div class="form-group col-md-3 text-center">
+          <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" id="hideOutOfStock" name="hide_out_of_stock"
+                   {% if hide_out_of_stock %}checked{% endif %}>
+            <label class="form-check-label" for="hideOutOfStock">
+              Hide Out of Stock
+            </label>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="form-group col-md-4 text-center mt-3 mt-md-0">
+          <button type="submit" class="btn btn-primary px-5 me-2">Search</button>
+          <button type="reset" class="btn btn-outline-secondary"
+                  onclick="window.location.href='{{ request.path }}'">Reset</button>
+        </div>
       </div>
     </div>
   </form>
 
-  <!-- Listings -->
+  <!-- Listings Section -->
   <div class="row mt-4">
     {% if listings %}
       {% for product in listings %}
-      <a href="{% url 'listing' product.id %}" class="text-decoration-none" style="text-decoration: none !important;">
       <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm h-100 {% if product.stock == 0 %}opacity-50{% endif %}">
           <div class="d-flex align-items-center justify-content-center bg-light border-bottom" style="height: 250px;">
             {% if product.image %}
               <span style="display: inline-block; width: 100%; height: 100%;
@@ -43,21 +55,26 @@
               <div class="text-muted">No Image Available</div>
             {% endif %}
           </div>
-          <div class="card-body">
+          <div class="card-body text-center">
             <h5 class="card-title">{{ product.name }}</h5>
             <p class="card-text">{{ product.description|truncatechars:100 }}</p>
             <p class="card-text"><strong>${{ product.price }}</strong></p>
-            <a href="{% url 'listing' product.id %}" class="btn btn-outline-primary">View Details</a>
-            <form action="{% url 'add_to_cart' product.id %}" method="post" class="d-inline">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-primary px-4 me-2">
-                Add to Cart (+1)
-              </button>
-            </form>
+
+            {% if product.stock > 0 %}
+              <p class="text-success">In Stock: {{ product.stock }}</p>
+              <form action="{% url 'add_to_cart' product.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary px-4 me-2">Add to Cart (+1)</button>
+              </form>
+            {% else %}
+              <p class="text-danger font-weight-bold">Out of Stock</p>
+              <button class="btn btn-secondary px-4 me-2" disabled>Out of Stock</button>
+            {% endif %}
+
+            <a href="{% url 'listing' product.id %}" class="btn btn-outline-primary ms-2">View Details</a>
           </div>
         </div>
       </div>
-    </a>
       {% endfor %}
     {% else %}
       {% if query %}

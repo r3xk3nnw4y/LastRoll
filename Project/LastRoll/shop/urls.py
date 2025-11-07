@@ -55,6 +55,7 @@ urlpatterns = [
     path('sellerdashboard/', views.sellerdashboard, name='shop-sellerdashboard'),
     path('selleraccount/', views.selleraccount, name='shop-selleraccount'),
     path('sellermylistings/', views.sellermylistings, name='shop-sellermylistings'),
+    path('restock/<int:product_id>/', views.restock_product, name='restock_product'),
     path('sellercreatelisting/', views.sellercreatelisting, name='shop-sellercreatelisting'),
     path('sellermyorders/', views.sellermyorders, name='shop-sellermyorders'),
     path('sellersales/', views.sellersales, name='shop-sellersales'),

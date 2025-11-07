@@ -527,6 +527,37 @@ def sellermylistings(request):
     return render(request, 'shop/sellermylistings.html', context)
 
 @login_required
+@require_POST
+def restock_product(request, product_id):
+    """Allows a seller to adjust (increase/decrease) product stock safely."""
+    profile = request.user.profile
+    if profile.role != profile.ROLE_SELLER:
+        return HttpResponseForbidden("You do not have permission to restock items.")
+
+    product = get_object_or_404(Product, pk=product_id, seller__user=request.user)
+
+    try:
+        change = int(request.POST.get("change", 0))
+    except ValueError:
+        messages.error(request, "Invalid stock adjustment value.")
+        return redirect("shop-sellermylistings")
+
+    new_stock = product.stock + change
+    if new_stock < 0:
+        messages.error(request, "Stock cannot go below zero.")
+    else:
+        product.stock = new_stock
+        product.save()
+        if change > 0:
+            messages.success(request, f"Stock increased by {change}. New stock: {product.stock}.")
+        elif change < 0:
+            messages.warning(request, f"Stock decreased by {-change}. New stock: {product.stock}.")
+        else:
+            messages.info(request, "No change made to stock.")
+
+    return redirect("shop-sellermylistings")
+
+@login_required
 def remove_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     profile = request.user.profile

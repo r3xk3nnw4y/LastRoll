@@ -27,4 +27,5 @@ jobs:
         pip install -r Project/LastRoll/requirements.txt
     - name: Run Tests
       run: |
-        python .github/workflows/manage.py test
+        cd Project/LastRoll
+        python manage.py test

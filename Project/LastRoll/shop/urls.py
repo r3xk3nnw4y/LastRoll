@@ -49,6 +49,7 @@ urlpatterns = [
     path('featuredlistings/', views.featuredlistings, name='shop-featuredlistings'),
     path('buyerorders/', views.buyerorders, name='shop-buyerorders'),
     path('refund/<int:order_id>/', views.refund_order, name='refund_order'),
+    path('compare/', views.compare_listings, name='shop-compare-listings'),
 
 
     # Seller Pages

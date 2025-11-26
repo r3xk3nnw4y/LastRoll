@@ -5,17 +5,28 @@
 {% block content %}
 <div class="container mt-5">
   <h2 class="text-center mb-4">My Listings</h2>
-  <a href="{% url 'shop-sellercreatelisting' %}" class="btn btn-primary btn-lg btn-block my-2">Add Listing</a>
+
+  <a href="{% url 'shop-sellercreatelisting' %}" class="btn btn-primary btn-lg btn-block my-3">Add Listing</a>
 
   {% for product in listings %}
-    <div class="card mb-3 shadow-sm">
-      <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
-        <!-- Product Info -->
-        <div class="mb-2">
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
+
+      <!-- Top section -->
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
           <h5 class="card-title">{{ product.name }}</h5>
-          <p class="text-muted mb-1">Price: ${{ product.price }}</p>
-          <p class="text-muted mb-1">Stock: {{ product.stock }}</p>
-          <p class="text-muted">Status: 
+          <p class="text-muted">Price: ${{ product.price }}</p>
+          <p class="text-muted">Stock: {{ product.stock }}</p>
+
+          <p class="text-muted">
+            <strong>Color:</strong> {{ product.color }}<br>
+            <strong>Material:</strong> {{ product.material }}<br>
+            <strong>Dice Type:</strong> {{ product.dice_type }}
+          </p>
+
+          <p class="text-muted">
+            Status:
             {% if product.status == 0 %}Unverified
             {% elif product.status == 1 %}Approved
             {% else %}Banned
@@ -23,27 +34,32 @@
           </p>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="text-end">
-          <!-- Restock Form -->
-          <form action="{% url 'restock_product' product.pk %}" method="post" class="d-inline-block me-2">
+        <!-- Buttons column -->
+        <div class="text-right">
+
+          <!-- Restock -->
+          <form action="{% url 'restock_product' product.pk %}" method="post" class="mb-2">
             {% csrf_token %}
-            <div class="input-group input-group-sm">
-              <input type="number" name="change" class="form-control" placeholder="+/- amount" required>
-              <button type="submit" class="btn btn-outline-success">Update Stock</button>
+            <div class="input-group">
+              <input type="number" name="amount" class="form-control" placeholder="+/- amount">
+              <div class="input-group-append">
+                <button class="btn btn-outline-success" type="submit">Update Stock</button>
+              </div>
             </div>
           </form>
 
-          <!-- Delete Button -->
-          <form action="{% url 'remove_product' product.pk %}" method="post" class="d-inline-block">
+          <!-- Delete -->
+          <form action="{% url 'remove_product' product.pk %}" method="post">
             {% csrf_token %}
-            <button class="btn btn-outline-danger btn-sm">Delete</button>
+            <button class="btn btn-danger btn-sm">Delete Listing</button>
           </form>
+
         </div>
       </div>
+
     </div>
-  {% empty %}
-    <p class="text-center text-muted">You have no listings yet.</p>
+  </div>
   {% endfor %}
+
 </div>
 {% endblock %}

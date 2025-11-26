@@ -171,7 +171,19 @@ def clear_cart(request):
     response.delete_cookie('cart')
     return response
 
-#-------------------------------------------------
+@login_required
+def compare_listings(request):
+    """Compare up to two selected products."""
+    if request.user.profile.role != request.user.profile.ROLE_BUYER:
+        return HttpResponseForbidden("You do not have permission to view this page.")
+
+    ids = request.GET.getlist('compare')
+    products = Product.objects.filter(id__in=ids, status=1)
+
+    context = {
+        "products": products,
+    }
+    return render(request, "shop/compare_listings.html", context)
 
 def process_order(request):
     cart = get_cart_from_cookies(request)
@@ -406,22 +418,31 @@ def refund_order(request, order_id):
 @login_required
 def alllistings(request):
     query = request.GET.get('name', '').strip()
-    hide_out_of_stock = request.GET.get('hide_out_of_stock', 'off') == 'on'
+    color = request.GET.get('color', '').strip()
+    material = request.GET.get('material', '').strip()
+    dice_type = request.GET.get('dice_type', '').strip()
 
     listings = Product.objects.filter(status=1)
 
     if query:
         listings = listings.filter(name__icontains=query)
-    if hide_out_of_stock:
-        listings = listings.filter(stock__gt=0)
+    if color:
+        listings = listings.filter(color__icontains=color)
+    if material:
+        listings = listings.filter(material__icontains=material)
+    if dice_type:
+        listings = listings.filter(dice_type__icontains=dice_type)
 
     context = {
         'title': 'All Listings',
         'listings': listings,
         'query': query,
-        'hide_out_of_stock': hide_out_of_stock,
+        'color_query': color,
+        'material_query': material,
+        'dice_type_query': dice_type,
     }
     return render(request, 'shop/alllistings.html', context)
+
 
 
 def featuredlistings(request):
@@ -489,30 +510,33 @@ def selleraccount(request):
 
 @login_required
 def sellercreatelisting(request):
-    """Seller listings page — add products."""
+
     profile = request.user.profile
     if profile.role != profile.ROLE_SELLER:
         return HttpResponseForbidden("You do not have permission to view this page.")
+
+    try:
+        seller = Seller.objects.get(user=request.user)
+    except Seller.DoesNotExist:
+        seller = Seller.objects.create(user=request.user)
+
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
-        try:
-            seller = Seller.objects.get(user=request.user)
-        except Seller.DoesNotExist:
-            # Handle the case where the user doesn't have a Seller profile yet
-            # For now create one if it doesn't exist
-            seller = Seller.objects.create(user=request.user)
-        form.instance.seller = seller
         if form.is_valid():
-            form.save() # This saves the new object to the database
-            return redirect('shop-sellerdashboard') # Redirect to a success page or list view
+            product = form.save(commit=False)
+            product.seller = seller
+            product.status = 0  # pending/admin approval
+            product.save()
+            return redirect('shop-sellermylistings')
     else:
         form = ProductForm()
+
     context = {
         'username': request.user.username,
-        'form': form
+        'form': form,
     }
     return render(request, 'shop/sellercreatelisting.html', context)
-
+    
 @login_required
 def sellermylistings(request):
     """Seller listings page — manage products."""
@@ -778,35 +802,19 @@ def reject_product(request, pk):
 
 @login_required
 def reportedlistings(request):
-    """Placeholder page for reported listings."""
+    """Admin page — shows only active, unresolved reports."""
     profile = request.user.profile
     if profile.role != profile.ROLE_ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
-    context = {
-        'reports': [
-            {'listing': 'Old Chair', 'reason': 'Inappropriate description', 'reported_by': 'User123'},
-            {'listing': 'Broken Vase', 'reason': 'Scam suspicion', 'reported_by': 'Buyer42'},
-        ]
-    }
+
+    listings = (
+        Product.objects
+        .filter(is_reported=True, report_confirmed=False)
+        .select_related('seller', 'seller__user')
+    )
+
+    context = {'listings': listings}
     return render(request, 'shop/reportedlistings.html', context)
-
-
-    query = request.GET.get('q', '').strip()
-    role_filter = request.GET.get('role', '')
-
-    # Fetch all users except admins
-    users = User.objects.filter(profile__role__in=[profile.ROLE_BUYER, profile.ROLE_SELLER])
-
-    if query:
-        users = users.filter(Q(username__icontains=query) | Q(email__icontains=query))
-    if role_filter:
-        users = users.filter(profile__role=role_filter)
-
-    return render(request, 'shop/manage_users.html', {
-        'users': users,
-        'query': query,
-        'role_filter': role_filter,
-    })
 
 
 @login_required

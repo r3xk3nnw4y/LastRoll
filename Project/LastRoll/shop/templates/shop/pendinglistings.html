@@ -9,7 +9,6 @@
   <div class="card mb-4 shadow-sm">
     <div class="row no-gutters align-items-center">
 
-      <!-- Product Image -->
       <div class="col-md-4 d-flex justify-content-center align-items-center p-3">
         {% if product.image %}
           <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 200px;">
@@ -20,7 +19,6 @@
         {% endif %}
       </div>
 
-      <!-- Product Info -->
       <div class="col-md-8">
         <div class="card-body">
           <h5 class="card-title">{{ product.name }}</h5>
@@ -29,8 +27,11 @@
           <ul class="list-unstyled mb-3">
             <li><strong>Price:</strong> ${{ product.price }}</li>
             <li><strong>Stock:</strong> {{ product.stock }}</li>
-            <li><strong>Store Name:</strong> {{ product.seller.store_name|default:"(No store name)" }}</li>
-            <li><strong>Seller Username:</strong> {{ product.seller.user.username|default:"(Unknown)" }}</li>
+            <li><strong>Color:</strong> {{ product.color }}</li>
+            <li><strong>Material:</strong> {{ product.material }}</li>
+            <li><strong>Dice Type:</strong> {{ product.dice_type }}</li>
+            <li><strong>Seller Store:</strong> {{ product.seller.store_name }}</li>
+            <li><strong>Seller User:</strong> {{ product.seller.user.username }}</li>
           </ul>
 
           {% if product.status == 0 %}
@@ -46,7 +47,7 @@
             </form>
           </div>
           {% else %}
-          <p class="text-muted mt-2">
+          <p class="text-muted">
             <strong>Status:</strong> {{ product.get_status_display }}
           </p>
           {% endif %}

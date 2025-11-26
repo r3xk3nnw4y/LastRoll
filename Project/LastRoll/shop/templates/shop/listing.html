@@ -2,7 +2,6 @@
 {% block title %}Listing{% endblock %}
 {% block sidebar %}{% endblock %}
 
-
 {% block content %}
 <div class="container my-5">
   <div class="card shadow-lg border-0 p-4 mx-auto" style="border-radius: 1.25rem; max-width: 800px;">
@@ -10,9 +9,9 @@
     <!-- Product Image -->
     <div class="position-relative overflow-hidden rounded-4 mb-4" style="height: 350px;">
       {% if product.image %}
-              <span style="display: inline-block; width: 100%; height: 100%;
-                           background-image: url('{{ product.image.url }}');
-                           background-size: cover; background-position: center;"></span>
+        <span style="display: inline-block; width: 100%; height: 100%;
+                     background-image: url('{{ product.image.url }}');
+                     background-size: cover; background-position: center;"></span>
       {% else %}
         <div class="d-flex justify-content-center align-items-center h-100 bg-light text-muted">
           <span>No Image Available</span>
@@ -26,12 +25,23 @@
       <p class="text-muted mb-4">{{ product.description|default:"No description available."|truncatechars:150 }}</p>
       <h4 class="text-primary fw-semibold mb-4">${{ product.price }}</h4>
 
+      <!-- Stock status -->
+      {% if product.stock <= 0 %}
+        <span class="badge bg-danger mb-3" style="font-size:1rem;">Out of Stock</span><br>
+      {% endif %}
+
       <!-- Add to Cart Form -->
       <form action="{% url 'add_to_cart' product.id %}" method="post" class="d-inline">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary px-4 me-2">
-          Add to Cart (+1)
-        </button>
+        {% if product.stock > 0 %}
+          <button type="submit" class="btn btn-primary px-4 me-2">
+            Add to Cart (+1)
+          </button>
+        {% else %}
+          <button type="button" class="btn btn-secondary px-4 me-2" disabled>
+            Out of Stock
+          </button>
+        {% endif %}
       </form>
 
       <!-- View Cart Button -->
@@ -40,7 +50,7 @@
       </a>
     </div>
 
-    <!-- Optional Extra Info -->
+    <!-- Seller Info -->
     <div class="card-footer bg-transparent text-center mt-3">
       <small class="text-muted">
         Seller: {{ product.seller.store_name }}

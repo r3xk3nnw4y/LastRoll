@@ -5,13 +5,150 @@
 {% block content %}
 <div class="container mt-5">
   <h2 class="text-center mb-4">Create Listing</h2>
-  
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Create</button>
-    </form>
-  
-    <a href="{% url 'shop-sellermylistings' %}" class="btn btn-primary btn-lg btn-block my-2">Back to Listings</a>
+
+  <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
+    {% csrf_token %}
+
+    <!-- Name -->
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}">Name</label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <div class="text-danger small">
+          {{ form.name.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label for="{{ form.description.id_for_label }}">Description</label>
+      {{ form.description }}
+      {% if form.description.errors %}
+        <div class="text-danger small">
+          {{ form.description.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Price -->
+    <div class="form-group">
+      <label for="{{ form.price.id_for_label }}">Price</label>
+      {{ form.price }}
+      {% if form.price.errors %}
+        <div class="text-danger small">
+          {{ form.price.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Stock -->
+    <div class="form-group">
+      <label for="{{ form.stock.id_for_label }}">Stock</label>
+      {{ form.stock }}
+      {% if form.stock.errors %}
+        <div class="text-danger small">
+          {{ form.stock.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Image -->
+    <div class="form-group">
+      <label for="{{ form.image.id_for_label }}">Image</label>
+      {{ form.image }}
+      {% if form.image.errors %}
+        <div class="text-danger small">
+          {{ form.image.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <hr>
+
+    <!-- Color tag -->
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="{{ form.color.id_for_label }}">Color (preset)</label>
+        {{ form.color }}
+        {% if form.color.errors %}
+          <div class="text-danger small">
+            {{ form.color.errors }}
+          </div>
+        {% endif %}
+      </div>
+      <div class="form-group col-md-6">
+        <label for="{{ form.color_custom.id_for_label }}">Custom Color (optional)</label>
+        {{ form.color_custom }}
+        {% if form.color_custom.errors %}
+          <div class="text-danger small">
+            {{ form.color_custom.errors }}
+          </div>
+        {% endif %}
+        <small class="form-text text-muted">
+          Leave blank to use the preset or "N/A".
+        </small>
+      </div>
+    </div>
+
+    <!-- Material tag -->
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="{{ form.material.id_for_label }}">Material (preset)</label>
+        {{ form.material }}
+        {% if form.material.errors %}
+          <div class="text-danger small">
+            {{ form.material.errors }}
+          </div>
+        {% endif %}
+      </div>
+      <div class="form-group col-md-6">
+        <label for="{{ form.material_custom.id_for_label }}">Custom Material (optional)</label>
+        {{ form.material_custom }}
+        {% if form.material_custom.errors %}
+          <div class="text-danger small">
+            {{ form.material_custom.errors }}
+          </div>
+        {% endif %}
+        <small class="form-text text-muted">
+          Leave blank to use the preset or "N/A".
+        </small>
+      </div>
+    </div>
+
+    <!-- Dice type tag -->
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="{{ form.dice_type.id_for_label }}">Dice Type (preset)</label>
+        {{ form.dice_type }}
+        {% if form.dice_type.errors %}
+          <div class="text-danger small">
+            {{ form.dice_type.errors }}
+          </div>
+        {% endif %}
+      </div>
+      <div class="form-group col-md-6">
+        <label for="{{ form.dice_type_custom.id_for_label }}">Custom Dice Type (optional)</label>
+        {{ form.dice_type_custom }}
+        {% if form.dice_type_custom.errors %}
+          <div class="text-danger small">
+            {{ form.dice_type_custom.errors }}
+          </div>
+        {% endif %}
+        <small class="form-text text-muted">
+          Leave blank to use the preset or "N/A".
+        </small>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary px-5">Create Listing</button>
+      <a href="{% url 'shop-sellermylistings' %}" class="btn btn-secondary ml-2">Cancel</a>
+    </div>
+  </form>
+
+  <a href="{% url 'shop-sellermylistings' %}" class="btn btn-link btn-block my-3">
+    Back to Listings
+  </a>
 </div>
 {% endblock %}

@@ -7,82 +7,168 @@
 <div class="container mt-4">
   <h1 class="text-center mb-4">All Listings</h1>
 
-  <!-- Search & Filter Form -->
+  <!-- Search Form -->
   <form method="GET" class="mb-5">
     <div class="card shadow-sm p-4">
-      <div class="form-row row align-items-center">
-        <!-- Search by Name -->
-        <div class="form-group col-md-5 mx-auto">
-          <label for="searchName">Search by Name</label>
+      <div class="form-row">
+
+        <!-- Name Search -->
+        <div class="form-group col-md-3">
+          <label for="searchName">Name</label>
           <input type="text" id="searchName" name="name" class="form-control"
                  placeholder="Enter product name" value="{{ query }}">
         </div>
 
-        <!-- Hide Out of Stock Toggle -->
-        <div class="form-group col-md-3 text-center">
-          <div class="form-check mt-4">
-            <input class="form-check-input" type="checkbox" id="hideOutOfStock" name="hide_out_of_stock"
-                   {% if hide_out_of_stock %}checked{% endif %}>
-            <label class="form-check-label" for="hideOutOfStock">
-              Hide Out of Stock
-            </label>
-          </div>
+        <!-- Color Search -->
+        <div class="form-group col-md-3">
+          <label for="searchColor">Color</label>
+          <input type="text" id="searchColor" name="color" class="form-control"
+                 list="color-options" value="{{ color_query }}">
+          <datalist id="color-options">
+            <option value="Red">
+            <option value="Blue">
+            <option value="Green">
+            <option value="Black">
+            <option value="White">
+            <option value="Purple">
+            <option value="Gold">
+            <option value="N/A">
+          </datalist>
         </div>
 
-        <!-- Buttons -->
-        <div class="form-group col-md-4 text-center mt-3 mt-md-0">
-          <button type="submit" class="btn btn-primary px-5 me-2">Search</button>
-          <button type="reset" class="btn btn-outline-secondary"
-                  onclick="window.location.href='{{ request.path }}'">Reset</button>
+        <!-- Material Search -->
+        <div class="form-group col-md-3">
+          <label for="searchMaterial">Material</label>
+          <input type="text" id="searchMaterial" name="material" class="form-control"
+                 list="material-options" value="{{ material_query }}">
+          <datalist id="material-options">
+            <option value="Plastic">
+            <option value="Metal">
+            <option value="Wood">
+            <option value="Glass">
+            <option value="Resin">
+            <option value="N/A">
+          </datalist>
         </div>
+
+        <!-- Dice Type Search -->
+        <div class="form-group col-md-3">
+          <label for="searchDiceType">Dice Type</label>
+          <input type="text" id="searchDiceType" name="dice_type" class="form-control"
+                 list="dice-type-options" value="{{ dice_type_query }}">
+          <datalist id="dice-type-options">
+            <option value="D6">
+            <option value="D20">
+            <option value="Full Set">
+            <option value="D10">
+            <option value="D12">
+            <option value="N/A">
+          </datalist>
+        </div>
+
+      </div>
+
+      <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary px-5">Search</button>
+        <button type="reset" class="btn btn-outline-secondary ml-2"
+                onclick="window.location.href='{{ request.path }}'">Reset</button>
       </div>
     </div>
   </form>
 
-  <!-- Listings Section -->
+  <!-- Listings -->
   <div class="row mt-4">
     {% if listings %}
       {% for product in listings %}
       <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 {% if product.stock == 0 %}opacity-50{% endif %}">
-          <div class="d-flex align-items-center justify-content-center bg-light border-bottom" style="height: 250px;">
-            {% if product.image %}
-              <span style="display: inline-block; width: 100%; height: 100%;
-                           background-image: url('{{ product.image.url }}');
-                           background-size: cover; background-position: center;">
-              </span>
-            {% else %}
-              <div class="text-muted">No Image Available</div>
-            {% endif %}
+        <div class="card shadow-sm h-100 position-relative">
+
+          <!-- Compare checkbox -->
+          <div class="position-absolute" style="top:10px; left:10px; z-index:2;">
+            <input type="checkbox" class="compare-checkbox" value="{{ product.id }}">
           </div>
-          <div class="card-body text-center">
+
+          <!-- Image -->
+          <a href="{% url 'listing' product.id %}" style="text-decoration:none; color:inherit;">
+            <div class="d-flex align-items-center justify-content-center bg-light border-bottom" style="height: 250px;">
+              {% if product.image %}
+                <span style="display: inline-block; width: 100%; height: 100%;
+                             background-image: url('{{ product.image.url }}');
+                             background-size: cover; background-position: center;">
+                </span>
+              {% else %}
+                <div class="text-muted">No Image Available</div>
+              {% endif %}
+            </div>
+          </a>
+
+          <!-- Details -->
+          <div class="card-body">
             <h5 class="card-title">{{ product.name }}</h5>
             <p class="card-text">{{ product.description|truncatechars:100 }}</p>
             <p class="card-text"><strong>${{ product.price }}</strong></p>
+            <p class="card-text text-muted mb-1">
+              <strong>Color:</strong> {{ product.color }} |
+              <strong>Material:</strong> {{ product.material }} |
+              <strong>Type:</strong> {{ product.dice_type }}
+            </p>
 
-            {% if product.stock > 0 %}
-              <p class="text-success">In Stock: {{ product.stock }}</p>
-              <form action="{% url 'add_to_cart' product.id %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary px-4 me-2">Add to Cart (+1)</button>
-              </form>
-            {% else %}
-              <p class="text-danger font-weight-bold">Out of Stock</p>
-              <button class="btn btn-secondary px-4 me-2" disabled>Out of Stock</button>
-            {% endif %}
+            <!-- View details -->
+            <a href="{% url 'listing' product.id %}" class="btn btn-outline-primary mb-2">
+              View Details
+            </a>
 
-            <a href="{% url 'listing' product.id %}" class="btn btn-outline-primary ms-2">View Details</a>
+            <!-- Add to cart, stock-aware -->
+            <form action="{% url 'add_to_cart' product.id %}" method="post" class="d-inline">
+              {% csrf_token %}
+              {% if product.stock > 0 %}
+                <button type="submit" class="btn btn-primary px-4 me-2">
+                  Add to Cart (+1)
+                </button>
+              {% else %}
+                <button type="button" class="btn btn-secondary px-4 me-2" disabled>
+                  Out of Stock
+                </button>
+              {% endif %}
+            </form>
           </div>
+
         </div>
       </div>
       {% endfor %}
     {% else %}
-      {% if query %}
-        <p class="text-center text-danger mt-5">No results found for “{{ query }}”.</p>
+      {% if query or color_query or material_query or dice_type_query %}
+        <p class="text-center text-danger mt-5">No results found.</p>
       {% else %}
         <p class="text-center text-muted mt-5">There are no listings yet.</p>
       {% endif %}
     {% endif %}
   </div>
+
+  {% if listings %}
+  <div class="text-center mt-3 mb-5">
+    <button type="button" id="compare-btn" class="btn btn-warning px-5">
+      Compare Selected
+    </button>
+    <p class="text-muted mt-2">Select two listings to compare.</p>
+  </div>
+  {% endif %}
 </div>
+
+<script>
+  (function() {
+    const btn = document.getElementById('compare-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      const checked = Array.from(document.querySelectorAll('.compare-checkbox:checked'));
+      if (checked.length < 2) {
+        alert('Please select at least two listings to compare.');
+        return;
+      }
+      const params = checked.map(cb => 'compare=' + encodeURIComponent(cb.value)).join('&');
+      const url = "{% url 'shop-compare-listings' %}?" + params;
+      window.location.href = url;
+    });
+  })();
+</script>
 {% endblock %}

@@ -12,15 +12,34 @@
         <img src="{{ product.image.url }}" alt="{{ product.name }}"
              class="img-thumbnail mr-3" style="width: 150px; height: auto;">
       {% endif %}
+
       <div>
         <h5 class="card-title mb-1">{{ product.name }}</h5>
-        <p class="card-text text-muted mb-1">{{ product.description|truncatewords:20 }}</p>
+        <p class="card-text text-muted mb-1">
+          {{ product.description|truncatewords:20 }}
+        </p>
 
-        <!-- 🔹 Seller info -->
-        <p class="mb-1"><strong>Store Name:</strong> {{ product.seller.store_name|default:"N/A" }}</p>
-        <p class="mb-1"><strong>Seller Username:</strong> {{ product.seller.user.username }}</p>
+        <p class="mb-1">
+          <strong>Price:</strong> ${{ product.price }}
+        </p>
 
-        <p class="mb-1"><strong>Reported:</strong> {{ product.is_reported }}</p>
+        <p class="mb-1">
+          <strong>Seller Username:</strong>
+          {{ product.seller.user.username }}
+        </p>
+        <p class="mb-1">
+          <strong>Store Name:</strong>
+          {{ product.seller.store_name }}
+        </p>
+
+        <p class="mb-1">
+          <strong>Color:</strong> {{ product.color }}
+          &nbsp;|&nbsp;
+          <strong>Material:</strong> {{ product.material }}
+          &nbsp;|&nbsp;
+          <strong>Dice Type:</strong> {{ product.dice_type }}
+        </p>
+
         <p class="mb-1">
           <strong>Status:</strong>
           {% if product.report_confirmed %}
@@ -37,6 +56,7 @@
         {% csrf_token %}
         <button class="btn btn-danger btn-sm">Confirm Report</button>
       </form>
+
       <form action="{% url 'resolve_report' product.pk 'dismiss' %}" method="post" style="display:inline;">
         {% csrf_token %}
         <button class="btn btn-success btn-sm">Dismiss Report</button>

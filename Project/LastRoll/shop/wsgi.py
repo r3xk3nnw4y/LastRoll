@@ -10,6 +10,9 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 import os
 
 from django.core.wsgi import get_wsgi_application
+import sys
+#sys.path.append('/home/LastRoll/Project/LastRoll/shop')
+#sys.path.append('/home/LastRoll/Project/LastRoll/shop')
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
 

@@ -15,7 +15,7 @@ MEDIA_URL = '/media/'
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-gla^t6wh_j%u3&+9n(gb-+3@3@5js%^muae(_5f9xcr36n1itc'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['70.250.151.1','www.lastroll.uk']
 
 
 # Application definition

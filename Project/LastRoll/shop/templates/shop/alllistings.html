@@ -83,10 +83,20 @@
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm h-100 position-relative">
 
-          <!-- Compare checkbox -->
+          <!-- Compare checkbox (top-left) -->
           <div class="position-absolute" style="top:10px; left:10px; z-index:2;">
             <input type="checkbox" class="compare-checkbox" value="{{ product.id }}">
           </div>
+
+          <!-- Report button (top-right) -->
+          <form action="{% url 'report_product' product.id %}" method="post"
+                class="position-absolute"
+                style="top:10px; right:10px; z-index:2;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">
+              Report
+            </button>
+          </form>
 
           <!-- Image -->
           <a href="{% url 'listing' product.id %}" style="text-decoration:none; color:inherit;">

@@ -560,8 +560,10 @@ def restock_product(request, product_id):
 
     product = get_object_or_404(Product, pk=product_id, seller__user=request.user)
 
+    raw_amount = request.POST.get("amount", "").strip()
+
     try:
-        change = int(request.POST.get("change", 0))
+        change = int(raw_amount or 0)
     except ValueError:
         messages.error(request, "Invalid stock adjustment value.")
         return redirect("shop-sellermylistings")

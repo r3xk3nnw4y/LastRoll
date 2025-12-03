@@ -42,4 +42,25 @@ jobs:
       # JavaScript / TypeScript static analysis
       - name: Set up Node.js
         if: matrix.language == 'javascript'
-        uses:
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install JS dependencies
+        if: matrix.language == 'javascript'
+        run: |
+          npm install -g eslint
+          npm install || true
+
+      - name: Run ESLint
+        if: matrix.language == 'javascript'
+        run: eslint . --ext .js,.ts || true
+
+      # C/C++ static analysis
+      - name: Install C++ tools
+        if: matrix.language == 'cpp'
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
+
+      - name: Run C++ static analysis
+        if: matrix.language == 'cpp'
+        run: cppcheck --enable=all --inconclusive --std=c++17 . || true

@@ -1,0 +1,45 @@
+name: Static Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [python, javascript, cpp]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Python static analysis
+      - name: Set up Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint mypy
+
+      - name: Run Python linters
+        if: matrix.language == 'python'
+        run: |
+          echo "Running pylint..."
+          pylint **/*.py || true
+          echo "Running mypy..."
+          mypy .
+
+      # JavaScript / TypeScript static analysis
+      - name: Set up Node.js
+        if: matrix.language == 'javascript'
+        uses:
